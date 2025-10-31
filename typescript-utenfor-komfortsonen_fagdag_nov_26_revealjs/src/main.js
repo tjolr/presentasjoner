@@ -1,7 +1,7 @@
 import Reveal from 'reveal.js';
 import 'reveal.js/dist/reveal.css';
 import 'reveal.js/dist/theme/black.css';
-import 'reveal.js/plugin/highlight/monokai.css';
+import 'highlight.js/styles/atom-one-dark.css';
 import Highlight from 'reveal.js/plugin/highlight/highlight.esm.js';
 import './style.css';
 
@@ -26,7 +26,8 @@ const deck = new Reveal({
   // Code highlighting
   highlight: {
     highlightOnLoad: true,
-    escapeHTML: false
+    escapeHTML: false,
+    defaultLanguage: 'typescript'
   }
 });
 

@@ -18,7 +18,7 @@
       <section>
         <!-- Template Literals Introduction -->
         <section>
-          <h1>Template Literals i TypeScript</h1>
+          <h2>Template Literals i TypeScript</h2>
           <p>TypeScript kan utlede og validere template literal types:</p>
           <pre><code class="language-javascript" data-trim data-line-numbers="1-4|5-10">
 // JavaScript Template Literals (runtime)
@@ -57,12 +57,13 @@ type ButtonClass = `btn-${Variant}-${Size}`;
         </section>
       </section>
 
-      <!-- Branded Types -->
+      <!-- Branded Types - Vertical Stack -->
       <section>
-        <h1>Branded Types</h1>
-
-        <div class="fragment fade-out" data-fragment-index="0">
-          <pre><code class="language-typescript" data-trim data-line-numbers="1-5|1-10">
+        <!-- Branded Types: Problem -->
+        <section>
+          <h2>Branded Types</h2>
+          <p>Problem: Alle IDs er bare strings</p>
+          <pre><code class="language-typescript" data-trim>
 // Problem: Alle IDs er bare strings
 const getJournal = async (patientId: string, journalId: string) =&gt;
   await fetch(`api/patient/${patientId}/journal/${journalId}`);
@@ -72,10 +73,12 @@ const journalId = "67890";
 
 await getJournal(journalId, patientId); // Feil rekkefølge!
           </code></pre>
-        </div>
+        </section>
 
-        <div class="fragment" data-fragment-index="0">
-          <pre><code class="language-typescript" data-trim data-line-numbers="1-5|1-10|11-20">
+        <!-- Branded Types: Solution -->
+        <section>
+          <p>Løsning: Branded Types</p>
+          <pre><code class="language-typescript" data-trim data-line-numbers="1-5|1-10|11-15">
 // Løsning: Branded Types
 declare const __brand: unique symbol;
 type Brand&lt;T, B&gt; = T &amp; { [__brand]: B };
@@ -92,7 +95,7 @@ const journalId = "67890" as JournalId;
 // Type error: Argument of type 'JournalId' is not assignable to parameter of type 'PatientId'
 await getJournal(journalId, patientId); // 🚫 Type error!
           </code></pre>
-        </div>
+        </section>
       </section>
 
     </div>
