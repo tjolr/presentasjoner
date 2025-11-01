@@ -78,3 +78,70 @@ const journalId = "67890" as JournalId;
 // Type error: Argument of type 'JournalId' is not assignable to parameter of type 'PatientId'
 await getJournal(journalId, patientId); // 🚫 Type error!
 ```
+
+---
+
+# Typeof & Keyof
+
+```typescript {1-4|1-13|15-23|15-31|31-47|31-56|54-63}{maxHeight:'400px'}
+const minKonto = {
+  saldo: 100,
+  eier: "Ola Normann",
+};
+
+type KontoInferred = typeof minKonto;
+
+/*
+type KontoInferred = {
+  saldo: number;
+  eier: string;
+}
+*/
+
+interface KontoSkjema {
+  id: string;
+  eier: {
+    fornavn: string;
+    etternavn: string;
+  };
+  saldo: number;
+  transaksjoner: unknown[];
+}
+
+type SkjemaFelter = keyof KontoSkjema;
+
+/*
+type SkjemaFelter = "id" | "eier" | "saldo" | "transaksjoner"
+*/
+
+export const DebounceConstants = {
+  createNewRow: {
+    none: 0,
+    veryShort: 200,
+    short: 1000,
+    medium: 5000,
+    long: 15000,
+  },
+  cellEdited: {
+    short: 300,
+    medium: 750,
+    long: 1200,
+    maxWait: 30000,
+  },
+} as const;
+
+export type CreateNewRowDebounceTime =
+  keyof typeof DebounceConstants.createNewRow;
+
+/*
+type CreateNewRowDebounceTime = "none" | "veryShort" | "short" | "medium" | "long"
+*/
+
+function debounceNewRow(delay: CreateNewRowDebounceTime) {
+  const timeout = DebounceConstants.createNewRow[delay];
+  return timeout;
+}
+
+debounceNewRow("short"); // ✅
+debounceNewRow("nonexistent"); // 🚫 Type error!
+```
