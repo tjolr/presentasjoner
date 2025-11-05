@@ -1,3 +1,20 @@
+type User = {
+  id: UserId;
+  name: string;
+  email: string;
+};
+
+declare const __brand: unique symbol;
+type Brand<T, B> = T & { [__brand]: B };
+
+type UserId = Brand<string, "UserId">;
+
+type UserMap = Record<UserId, User>;
+
+// type UserMap = Record<UserId, User>;
+
+type inferTEst = UserMap & { age: number };
+
 import { ActivityProps, CSSProperties } from "react";
 type Activity = ActivityProps["children"];
 
@@ -121,7 +138,108 @@ const getColorHex = (color: Color): string => {
     case "blue":
       return "#0000FF";
     default:
-      const _exhaustiveCheck: never = color;
-      return _exhaustiveCheck;
+      // kommenterer ut for å ikke få error i hele fila
+      // const _exhaustiveCheck: never = color;
+      // return _exhaustiveCheck;
+      return "";
   }
+};
+
+type ArrayItemType<T> = T extends (infer E)[] ? E : never;
+
+const persons = [
+  { name: "Ola Nordmann", age: 34 },
+  { name: "Kari Hansen", age: 51 },
+];
+type Person = ArrayItemType<typeof persons>;
+
+const routes: Record<string, `/${string}`> = {
+  hjem: "/",
+  profil: "/users/:id",
+  dashboard: "/dashboard",
+} as const;
+/*  
+Record<string, `/${string}`>
+Ulempe: typen blir bred, og vi mister informasjon om at det kun er strenger som starter med "/" 😕
+*/
+
+const routesWithoutTypes = {
+  hjem: "/",
+  profil: "/users/:id",
+  dashboard: "/dashboard",
+} as const;
+
+/* 
+{
+    hjem: string;
+    profil: string;
+    dashboard: string;
+}
+Bedre, men ikke optimalt 🤔 Vi har mistet kravet om at routes må starte med "/"
+*/
+
+const routesSatisfies = {
+  hjem: "/",
+  profil: "/users/:id",
+  dashboard: "/dashboard",
+} satisfies Record<string, `/${string}`>;
+
+/* 
+{
+    hjem: "/";
+    profil: "/users/:id";
+    dashboard: "/dashboard";
+}
+Med satisfies har vi bevart type-sikkerhet og informasjon om at det kun er strenger som starter med "/" 🤩
+*/
+
+// Felles base
+type BaseColumn = {
+  id: string;
+  label: string;
+};
+
+// Når kolonnen er redigerbar
+type EditableColumn = BaseColumn & {
+  isEditable: true;
+  placeholder: string;
+  onEdit: (value: string) => void;
+};
+
+// Når kolonnen IKKE er redigerbar
+type NonEditableColumn = BaseColumn & {
+  isEditable?: false | undefined;
+  placeholder?: never;
+  onEdit?: never;
+};
+
+type EnhancedNonEditableColumn = BaseColumn & {
+  isEditable: false;
+} & {
+  [key in keyof Pick<EditableColumn, "placeholder" | "onEdit">]?: never;
+};
+
+// Kombinert variant
+type Column = EditableColumn | EnhancedNonEditableColumn;
+
+const nameCol: EditableColumn = {
+  id: "name",
+  label: "Navn",
+  isEditable: true,
+  placeholder: "Skriv inn navn",
+  onEdit: (v) => console.log(v),
+};
+
+const idCol: Column = {
+  id: "id",
+  label: "Bruker-ID",
+  isEditable: false,
+};
+
+const badCol: Column = {
+  id: "email",
+  label: "E-post",
+  isEditable: false,
+  placeholder: "Ikke lov her", // ❌ Type '"Ikke lov her"' is not assignable to type 'never'
+  onEdit: () => {}, // ❌ Type '() => void' is not assignable to type 'undefined'
 };

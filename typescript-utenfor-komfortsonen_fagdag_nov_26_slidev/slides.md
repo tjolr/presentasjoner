@@ -13,11 +13,28 @@ mdc: true
 
 # TypeScript utenfor komfortsonen
 
+![komfortsonen-header-slides](./assets/komfortsonen-header-slides.png)
+
+---
+
+# Er TypeScript relevant i 2025?
+
+<div class="grid grid-cols-2 gap-8 top-30px">
+  <div>
+  <ul>
+    <li>99,208,449 Weekly Downloads (npmjs.com)</li>
+    <li>Mest brukte språk på Github i 2025</li>
+    <li>JetBrains Tools & Trends 2025: "Among the most dramatic rises in real-world usage over the last five years is TypeScript."</li>
+    </ul>
+  </div>
+  <div>
+    <img src="/assets/JetBrains.png" />
+  </div>
+</div>
+
 ---
 
 # Template Literals i TypeScript
-
-TypeScript kan utlede og validere template literal types:
 
 ```typescript {1-4|5-10|12-16|17-21|23-27}{maxHeight:'380px'}
 // JavaScript Template Literals (runtime)
@@ -78,6 +95,12 @@ const journalId = "67890" as JournalId;
 // Type error: Argument of type 'JournalId' is not assignable to parameter of type 'PatientId'
 await getJournal(journalId, patientId); // 🚫 Type error!
 ```
+
+---
+
+<div class="flex justify-center items-center">
+  <img src="./assets/drake_branded_types.png" alt="drake_branded_type" class="max-h-100" />
+</div>
 
 ---
 
@@ -177,43 +200,7 @@ function List<T extends { id: number }>({ items, renderItem }: ListProps<T>) {
 
 ---
 
-# Never for å filtrere ut uønskede typer
-
-```typescript {1-2|4-7|9-16|18-21|23-29}{maxHeight:'400px'}
-// Grunnleggende: Filtrer typer fra union
-type RemoveStrings<T> = T extends string ? never : T;
-
-type OnlyNumbers = RemoveStrings<string | number | boolean>;
-/*
-type OnlyNumbers = number | boolean
-*/
-
-// Eksempel: Fjern passord-felter fra bruker
-type User = {
-  id: number;
-  name: string;
-  email: string;
-  password: string;
-  createdAt: Date;
-};
-
-type RemovePasswordFields<T> = {
-  [K in keyof T]: K extends `${string}password${string}` ? never : T[K];
-};
-// Problem: password blir 'never', men nøkkelen eksisterer fortsatt
-
-// Løsning: Bruk 'as' for å fjerne nøkkelen helt
-type OmitByKeyPattern<T, Pattern extends string> = {
-  [K in keyof T as K extends Pattern ? never : K]: T[K];
-};
-
-type SafeUser = OmitByKeyPattern<User, `${string}password${string}`>;
-// Result: { id: number; name: string; email: string; createdAt: Date }
-```
-
----
-
-# Bruk never for å sørge for at alle valg er dekket i en switch-case
+# Bruk 'never' for å sørge for at alle valg er dekket i en switch-case
 
 ```typescript {maxHeight:'400px'}
 type Color = "red" | "green" | "blue" | "yellow";
@@ -236,9 +223,82 @@ const getColorHex = (color: Color): string => {
 
 ---
 
+# Never for å filtrere ut uønskede typer
+
+```typescript {1-4|1-12|1-22|10-36|22-44|46-51}{maxHeight:'420px'}
+// Felles base
+type BaseColumn = {
+  id: string;
+  label: string;
+};
+
+// Når kolonnen er redigerbar
+type EditableColumn = BaseColumn & {
+  isEditable: true;
+  placeholder: string;
+  onEdit: (value: string) => void;
+};
+
+// Når kolonnen IKKE er redigerbar
+type NonEditableColumn = BaseColumn & {
+  isEditable?: false | undefined;
+  placeholder?: never;
+  onEdit?: never;
+};
+
+// Kombinert variant
+type Column = EditableColumn | NonEditableColumn;
+
+const nameCol: Column = {
+  id: "name",
+  label: "Navn",
+  isEditable: true,
+  placeholder: "Skriv inn navn",
+  onEdit: (v) => console.log(v),
+};
+
+const idCol: Column = {
+  id: "id",
+  label: "Bruker-ID",
+  isEditable: false,
+};
+
+const badCol: Column = {
+  id: "email",
+  label: "E-post",
+  isEditable: false,
+  placeholder: "Ikke lov her", // ❌ Type '"Ikke lov her"' is not assignable to type 'never'
+  onEdit: () => {}, // ❌ Type '() => void' is not assignable to type 'undefined'
+};
+
+// Enda bedre versjon av NonEditableColumn 😍
+type BetterNonEditableColumn = BaseColumn & {
+  isEditable: false;
+} & {
+  [key in keyof Pick<EditableColumn, "placeholder" | "onEdit">]?: never;
+};
+```
+
+---
+
 # Infer for å ekstrahere typer
 
-```typescript {maxHeight:'400px'}
+```typescript {1-13|15-40}{maxHeight:'400px'}
+// Hent ut item type i en liste
+const persons = [
+  { name: "Ola Nordmann", age: 34 },
+  { name: "Kari Hansen", age: 51 },
+];
+
+type ArrayItemType<T> = T extends (infer E)[] ? E : never;
+
+type Person = ArrayItemType<typeof persons>;
+
+type Person = {
+  name: string;
+  age: number;
+};
+
 // Fra React sin typedefinisjon
 // @types/react/index.d.ts
 
@@ -323,6 +383,104 @@ const customContainerStyle = useCustomStyle((theme) => ({
 const customButtonStyle = useCustomStyle((theme) => ({
   color: theme.custom.color,
 }));
+```
+
+---
+
+# Satisfies operator
+
+```typescript {1-9|11-24|26-39}{maxHeight:'420px'}
+const routes: Record<string, `/${string}`> = {
+  hjem: "/",
+  profil: "/users/:id",
+  dashboard: "/dashboard",
+};
+/*  
+Record<string, `/${string}`>
+Ulempe: typen blir bred, og vi mister informasjon om at det kun er strenger som starter med "/" 😕
+*/
+
+const routesWithoutTypes = {
+  hjem: "/",
+  profil: "/users/:id",
+  dashboard: "/dashboard",
+} as const;
+
+/* 
+{
+    hjem: "/";
+    profil: "/users/:id";
+    dashboard: "/dashboard";
+}
+Bedre, men ikke optimalt 🤔 Vi har mistet kravet om at routes må starte med "/"
+*/
+
+const routesSatisfies = {
+  hjem: "/",
+  profil: "/users/:id",
+  dashboard: "/dashboard",
+} satisfies Record<string, `/${string}`>;
+
+/* 
+{
+    hjem: "/";
+    profil: "/users/:id";
+    dashboard: "/dashboard";
+}
+Med satisfies har vi bevart type-sikkerhet og informasjon om at det kun er strenger som starter med "/" 🤩
+*/
+```
+
+---
+
+# Utility types
+
+```typescript {1-14|17-60|24-60}{maxHeight:'420px'}
+// Mange utility typer
+type A = Awaited<Promise<string>>;
+type PartialDemo = Partial<Todo>;
+const obj2: Required<Props> = { a: 5 };
+const todo: Readonly<Todo> = {...};
+type TodoPreview = Pick<Todo, "title" | "completed">;
+type TodoPreview = Omit<Todo, "description">;
+type T0 = Exclude<"a" | "b" | "c", "a">;
+type T0 = Extract<"a" | "b" | "c", "a" | "f">;
+type T0 = NonNullable<string | number | undefined>;
+type T1 = Parameters<(s: string) => void>;
+type T1 = ReturnType<(s: string) => string>;
+
+// ... og enda flere
+
+
+// Eksempel på bruk av 'Parameters' - utility typen
+import { useVirtualizer, VirtualItem } from "@tanstack/vue-virtual";
+import { computed, ref } from "vue";
+
+interface Row {
+  id: string;
+  name: string;
+  // Indekserer attributtet "key" fra VirtualItem
+  key: VirtualItem["key"];
+}
+
+const rows = ref<Row[]>([]);
+const virtualizedContainerRef = ref<HTMLElement | null>(null);
+
+const rowVirtualizerOptions = computed(() => {
+  // Bruker utility-typen Parameters og henter ut første parameter
+  const options: Parameters<typeof useVirtualizer>[0] = {
+    count: rows.value.length,
+    getScrollElement: () => virtualizedContainerRef.value,
+    estimateSize: () => 28,
+    overscan: 50,
+    scrollPaddingStart: 150,
+    scrollPaddingEnd: 300,
+  };
+
+  return options;
+});
+
+const rowVirtualizer = useVirtualizer(rowVirtualizerOptions);
 ```
 
 ---
@@ -553,4 +711,199 @@ const flervalgFelt = opprettFelt<"flervalg">({
   valider: (x) => x.beskrivelse.length > 0,
   formatterVisning: (x) => `${x.id} - ${x.beskrivelse}`,
 });
+```
+
+---
+
+# Vi lager en kolonnefabrikk 🏭
+
+```typescript {1-200}{maxHeight:'420px'}
+interface OptionValue {
+  value: string | number;
+  label: string;
+}
+
+type ValueTypeMap = {
+  text: string | undefined;
+  number: number | undefined | null;
+  date: string | Date | null;
+  option: OptionValue | undefined;
+};
+
+type ColumnType = keyof ValueTypeMap;
+
+type BaseColumnProps<TData, TType extends ColumnType> = {
+  id: keyof TData;
+  header: string;
+  accessorFn: (row: TData) => ValueTypeMap[TType];
+  sortable?: boolean;
+  filterable?: boolean;
+  size?: number;
+  render?: (value: ValueTypeMap[TType], row: TData) => string;
+};
+
+type EditableColumnProps<TData, TType extends ColumnType> = BaseColumnProps<
+  TData,
+  TType
+> & {
+  editable: true;
+  isReadonlyFn: (row: TData) => boolean;
+  placeholder: string;
+  onChange: (value: ValueTypeMap[TType], row: TData) => void;
+};
+
+type NonEditableColumnProps<TData, TType extends ColumnType> = BaseColumnProps<
+  TData,
+  TType
+> & {
+  editable?: false;
+};
+
+type ColumnProps<TData, TType extends ColumnType> =
+  | EditableColumnProps<TData, TType>
+  | NonEditableColumnProps<TData, TType>;
+
+interface Column<TData, TType extends ColumnType> {
+  id: keyof TData;
+  header: string;
+  getValue: (row: TData) => ValueTypeMap[TType];
+  size: number;
+  sortable: boolean;
+  filterable: boolean;
+  render?: (value: ValueTypeMap[TType], row: TData) => string;
+  meta: {
+    type: TType;
+    editable: boolean;
+    isReadonly?: (row: TData) => boolean;
+    placeholder?: string;
+    onChange?: (value: ValueTypeMap[TType], row: TData) => void;
+  };
+}
+
+const DEFAULT_SIZES: Record<ColumnType, number> = {
+  text: 150,
+  number: 100,
+  date: 120,
+  option: 200,
+};
+
+type IsEditable<T> = T extends { editable: true } ? true : false;
+
+function createColumnForType<TData extends object, TType extends ColumnType>(
+  type: TType,
+  props: ColumnProps<TData, TType>
+): Column<TData, TType> {
+  const isEditable = props.editable === true;
+
+  return {
+    id: props.id,
+    header: props.header,
+    getValue: props.accessorFn,
+    size: props.size || DEFAULT_SIZES[type],
+    sortable: props.sortable !== undefined ? props.sortable : true,
+    filterable: props.filterable !== undefined ? props.filterable : true,
+    ...(props.render && { render: props.render }),
+    meta: {
+      type,
+      editable: isEditable,
+      ...(isEditable && {
+        isReadonly: props.isReadonlyFn,
+        placeholder: props.placeholder,
+        onChange: props.onChange,
+      }),
+    },
+  };
+}
+
+type ColumnFactoryMethods<TData> = {
+  [TType in ColumnType]: (
+    props: ColumnProps<TData, TType>
+  ) => Column<TData, TType>;
+};
+
+export function createColumnFactory<TData extends object = never>() {
+  const columnFactory = {
+    text: (props: ColumnProps<TData, "text">) =>
+      createColumnForType("text", props),
+    number: (props: ColumnProps<TData, "number">) =>
+      createColumnForType("number", props),
+    date: (props: ColumnProps<TData, "date">) =>
+      createColumnForType("date", props),
+    option: (props: ColumnProps<TData, "option">) =>
+      createColumnForType("option", props),
+  } satisfies ColumnFactoryMethods<TData>;
+
+  return columnFactory;
+}
+
+interface Produkt {
+  id: string;
+  navn: string;
+  pris: number;
+  kategori: OptionValue;
+  leverandør: OptionValue;
+  mottaksdato: Date;
+  utgåttVare?: boolean;
+}
+
+const columnFactory = createColumnFactory<Produkt>();
+
+/* 
+OPPGAVE 1: Legg til en ny kolonne for leverandør i tabellen.
+- Leverandør skal være en option kolonne
+- Leverandør skal være endringsbar (editable = true)
+- Leverandør skal være readonly hvis produktet er en utgått vare
+- Leverandør skal ha en placeholder "Velg leverandør"
+- Leverandør skal ha en onChange funksjon som loggfører endringen
+*/
+
+/* 
+OPPGAVE 2: Kolonenen pris skal ikke lenger være endringsbar
+- Sette editable til false for pris kolonnen
+- Fjern resterende props som tilhører editable
+*/
+
+const columns = [
+  columnFactory.text({
+    id: "navn",
+    header: "Produktnavn",
+    accessorFn: (row) => row.navn,
+    filterable: true,
+    render: (value, row) => `<span class="font-bold">${value}</span>`,
+  }),
+  columnFactory.option({
+    id: "kategori",
+    header: "Kategori",
+    accessorFn: (row) => row.kategori,
+    filterable: true,
+    render: (value, row) =>
+      `<span class="px-2 py-1 rounded-md bg-blue-100 text-blue-800">
+         ${value?.value} - ${value?.label}
+        </span>`,
+  }),
+  columnFactory.option({
+    id: "leverandør",
+    header: "Leverandør",
+    accessorFn: (row) => row.leverandør,
+    editable: true,
+    isReadonlyFn: (row) => row.utgåttVare ?? false,
+    placeholder: "Velg leverandør",
+    onChange: (value, row) =>
+      console.log(`Endret leverandør for ${row.navn} til ${value?.label}`),
+  }),
+  columnFactory.number({
+    id: "pris",
+    header: "Pris",
+    accessorFn: (row) => row.pris,
+    editable: false,
+    render: (value, row) => `<span class="text-green-600">${value} kr</span>`,
+  }),
+  columnFactory.date({
+    id: "mottaksdato",
+    header: "Mottaksdato",
+    accessorFn: (row) => row.mottaksdato,
+    size: 180,
+    sortable: false,
+  }),
+];
 ```
