@@ -34,6 +34,21 @@ mdc: true
 
 ---
 
+<div>
+  <h2>
+  Vi skal gå gjennom små og store eksempler, og jeg håper at alle kan ta med seg minst en ny teknikk tilbake til oppdrag 🚀
+  </h2>
+</div>
+
+<style>
+div {
+  display: grid;
+  place-items:center
+}
+</style>
+
+---
+
 # Template Literals i TypeScript
 
 ```typescript {1-4|5-10|12-16|17-21|23-27}{maxHeight:'380px'}
@@ -173,7 +188,7 @@ debounceNewRow("nonexistent"); // 🚫 Type error!
 
 # Bruk Extends for å stille krav til generics
 
-```typescript {1-3|1-17|1-23}{maxHeight:'400px'}
+```typescript {1-3|1-17|1-23}{maxHeight:'410px'}
 interface ListProps<T extends { id: number }> {
   items: T[];
   renderItem: (item: T) => React.ReactNode;
@@ -200,6 +215,114 @@ function List<T extends { id: number }>({ items, renderItem }: ListProps<T>) {
 
 ---
 
+# Const assertion
+
+```typescript {1-2|1-8|10-15|10-19|21-35|37-55}{maxHeight:'400px'}
+const list = [1, 2, 3];
+// TypeScript inferer typen av list til number[]
+
+list.push(4);
+/* 
+Siden lista kan endres så er typen fleksibel til å tillate flere tall.
+Dette er en liste med tall, og TS vet ikke hvor mange eller hvilke verdier.
+*/
+
+const list2 = [1, 2, 3] as const;
+/* 
+TypeScript inferer typen av list2 til readonly [1, 2, 3]
+
+Dette er en liste med tall, og TS vet at det kun er disse tre tallene.
+*/
+
+list2.push(4); // 🚫 Error: Property 'push' does not exist on type 'readonly [1, 2, 3]'.
+
+// Ved å bruke 'as const' så vet vi at lista er endelig, og TypeScript kan derfor gi en mer spesifikk type.
+
+// Eksempel
+// Uten 'as const'
+const MENU_ITEMS = [
+  { label: "Hjem", path: "/" },
+  { label: "Profil", path: "/profil" },
+  { label: "Innstillinger", path: "/innstillinger" },
+];
+
+type MenuItem = (typeof MENU_ITEMS)[number];
+/* 
+type MenuItem = {
+    label: string;
+    path: string;
+}
+*/
+
+// Med 'as const'
+const MENU_ITEMS_CONST = [
+  { label: "Hjem", path: "/" },
+  { label: "Profil", path: "/profil" },
+  { label: "Innstillinger", path: "/innstillinger" },
+] as const;
+
+type MenuItemConst = (typeof MENU_ITEMS_CONST)[number];
+/* 
+type MenuItem = {
+    readonly label: "Hjem";
+    readonly path: "/";
+} | {
+    readonly label: "Profil";
+    readonly path: "/profil";
+} | {
+    readonly label: "Innstillinger";
+    readonly path: "/innstillinger";
+}*/
+```
+
+---
+
+# Satisfies operator
+
+```typescript {1-9|11-24|26-39}{maxHeight:'420px'}
+const routes: Record<string, `/${string}`> = {
+  hjem: "/",
+  profil: "/users/:id",
+  dashboard: "/dashboard",
+};
+/*  
+Record<string, `/${string}`>
+Ulempe: typen blir bred, og vi mister informasjon om at det kun er strenger som starter med "/" 😕
+*/
+
+const routesWithoutTypes = {
+  hjem: "/",
+  profil: "/users/:id",
+  dashboard: "/dashboard",
+} as const;
+
+/* 
+{
+    hjem: "/";
+    profil: "/users/:id";
+    dashboard: "/dashboard";
+}
+Bedre, men ikke optimalt 🤔 Vi har mistet kravet om at routes må starte med "/"
+*/
+
+const routesSatisfies = {
+  hjem: "/",
+  profil: "/users/:id",
+  dashboard: "/dashboard",
+} satisfies Record<string, `/${string}`>;
+
+/* 
+{
+    hjem: "/";
+    profil: "/users/:id";
+    dashboard: "/dashboard";
+}
+Med satisfies har vi bevart type-sikkerhet og informasjon om at det kun er strenger som starter med "/" 🤩
+*/
+```
+
+---
+
 # Bruk 'never' for å sørge for at alle valg er dekket i en switch-case
 
 ```typescript {maxHeight:'400px'}
@@ -220,6 +343,10 @@ const getColorHex = (color: Color): string => {
   }
 };
 ```
+
+<!--
+adw
+-->
 
 ---
 
@@ -283,7 +410,7 @@ type BetterNonEditableColumn = BaseColumn & {
 
 # Infer for å ekstrahere typer
 
-```typescript {1-13|15-40}{maxHeight:'400px'}
+```typescript {1-14|15-40}{maxHeight:'400px'}
 // Hent ut item type i en liste
 const persons = [
   { name: "Ola Nordmann", age: 34 },
@@ -319,7 +446,7 @@ type MyContextType = { foo: string }
 
 ---
 
-# Lagre en generisk variabel i konstant for gjenbruk
+# Lagre en type i variabel for gjenbruk
 
 ```typescript {1-21|23-30|23-44|44-70}{maxHeight:'420px'}
 import { CSSProperties } from "react";
@@ -354,7 +481,7 @@ const createThemedStyle = <TTheme extends BaseTheme>() => {
 };
 
 // Lagre Theme i variabelen useStyle
-const { useStyle } = createThemedStyle();
+const { useStyle } = createThemedStyle<BaseTheme>();
 
 const containerStyle = useStyle((theme) => ({
   backgroundColor: theme.color.background,
@@ -382,53 +509,8 @@ const customContainerStyle = useCustomStyle((theme) => ({
 
 const customButtonStyle = useCustomStyle((theme) => ({
   color: theme.custom.color,
+  padding: theme.spacing.lg,
 }));
-```
-
----
-
-# Satisfies operator
-
-```typescript {1-9|11-24|26-39}{maxHeight:'420px'}
-const routes: Record<string, `/${string}`> = {
-  hjem: "/",
-  profil: "/users/:id",
-  dashboard: "/dashboard",
-};
-/*  
-Record<string, `/${string}`>
-Ulempe: typen blir bred, og vi mister informasjon om at det kun er strenger som starter med "/" 😕
-*/
-
-const routesWithoutTypes = {
-  hjem: "/",
-  profil: "/users/:id",
-  dashboard: "/dashboard",
-} as const;
-
-/* 
-{
-    hjem: "/";
-    profil: "/users/:id";
-    dashboard: "/dashboard";
-}
-Bedre, men ikke optimalt 🤔 Vi har mistet kravet om at routes må starte med "/"
-*/
-
-const routesSatisfies = {
-  hjem: "/",
-  profil: "/users/:id",
-  dashboard: "/dashboard",
-} satisfies Record<string, `/${string}`>;
-
-/* 
-{
-    hjem: "/";
-    profil: "/users/:id";
-    dashboard: "/dashboard";
-}
-Med satisfies har vi bevart type-sikkerhet og informasjon om at det kun er strenger som starter med "/" 🤩
-*/
 ```
 
 ---
@@ -717,7 +799,7 @@ const flervalgFelt = opprettFelt<"flervalg">({
 
 # Vi lager en kolonnefabrikk 🏭
 
-```typescript {1-200}{maxHeight:'420px'}
+```typescript {1-200}{maxHeight:'430px'}
 interface OptionValue {
   value: string | number;
   label: string;
@@ -847,21 +929,6 @@ interface Produkt {
 }
 
 const columnFactory = createColumnFactory<Produkt>();
-
-/* 
-OPPGAVE 1: Legg til en ny kolonne for leverandør i tabellen.
-- Leverandør skal være en option kolonne
-- Leverandør skal være endringsbar (editable = true)
-- Leverandør skal være readonly hvis produktet er en utgått vare
-- Leverandør skal ha en placeholder "Velg leverandør"
-- Leverandør skal ha en onChange funksjon som loggfører endringen
-*/
-
-/* 
-OPPGAVE 2: Kolonenen pris skal ikke lenger være endringsbar
-- Sette editable til false for pris kolonnen
-- Fjern resterende props som tilhører editable
-*/
 
 const columns = [
   columnFactory.text({

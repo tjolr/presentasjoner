@@ -47,7 +47,7 @@ const createThemedStyle = <TTheme extends BaseTheme>() => {
   return { useStyle };
 };
 
-const { useStyle } = createThemedStyle();
+const { useStyle } = createThemedStyle<BaseTheme>();
 
 const containerStyle = useStyle((theme) => ({
   backgroundColor: theme.color.background,
@@ -70,6 +70,7 @@ const { useStyle: useCustomStyle } = createThemedStyle<CustomTheme>();
 
 const customContainerStyle = useCustomStyle((theme) => ({
   backgroundColor: theme.custom.color,
+  padding: theme.spacing.lg,
 }));
 
 const customButtonStyle = useCustomStyle((theme) => ({
@@ -243,3 +244,61 @@ const badCol: Column = {
   placeholder: "Ikke lov her", // ❌ Type '"Ikke lov her"' is not assignable to type 'never'
   onEdit: () => {}, // ❌ Type '() => void' is not assignable to type 'undefined'
 };
+
+// const assertion
+
+const list = [1, 2, 3];
+// TypeScript inferer typen av list til number[]
+
+list.push(4);
+/* 
+Siden lista kan endres så er typen fleksibel til å tillate flere tall.
+Dette er en liste med tall, og TS vet ikke hvor mange eller hvilke verdier.
+*/
+
+const list2 = [1, 2, 3] as const;
+/* 
+TypeScript inferer typen av list2 til readonly [1, 2, 3]
+
+Dette er en liste med tall, og TS vet at det kun er disse tre tallene.
+*/
+
+list2.push(4); // 🚫 Error: Property 'push' does not exist on type 'readonly [1, 2, 3]'.
+
+// Ved å bruke 'as const' så vet vi at lista er endelig, og TypeScript kan derfor gi en mer spesifikk type.
+
+// Uten 'as const'
+const MENU_ITEMS = [
+  { label: "Hjem", path: "/" },
+  { label: "Profil", path: "/profil" },
+  { label: "Innstillinger", path: "/innstillinger" },
+];
+
+type MenuItem = (typeof MENU_ITEMS)[number];
+/* 
+type MenuItem = {
+    label: string;
+    path: string;
+}
+*/
+
+// Med 'as const'
+const MENU_ITEMS_CONST = [
+  { label: "Hjem", path: "/" },
+  { label: "Profil", path: "/profil" },
+  { label: "Innstillinger", path: "/innstillinger" },
+] as const;
+
+type MenuItemConst = (typeof MENU_ITEMS_CONST)[number];
+/* 
+type MenuItem = {
+    readonly label: "Hjem";
+    readonly path: "/";
+} | {
+    readonly label: "Profil";
+    readonly path: "/profil";
+} | {
+    readonly label: "Innstillinger";
+    readonly path: "/innstillinger";
+}
+*/
