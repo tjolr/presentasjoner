@@ -146,7 +146,7 @@ const getColorHex = (color: Color): string => {
   }
 };
 
-type ArrayItemType<T> = T extends (infer E)[] ? E : never;
+type ArrayItemType<T> = T extends Array<infer E> ? E : never;
 
 const persons = [
   { name: "Ola Nordmann", age: 34 },

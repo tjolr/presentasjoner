@@ -49,15 +49,15 @@ div {
 
 ---
 
-# Template Literals i TypeScript
+# Template literals i TypeScript
 
-```typescript {1-4|5-10|12-16|17-21|23-27}{maxHeight:'380px'}
-// JavaScript Template Literals (runtime)
+```typescript {1-4|5-10|12-16|12-21|23-27}{maxHeight:'380px'}
+// JavaScript Template Literals
 const color = "red";
 const size = "medium";
 const className = `${color}-${size}`; // "red-medium"
 
-// Template literal types i TypeScript (type level)
+// Template literal types i TypeScript
 type Color = "red" | "green" | "blue";
 type Size = "small" | "medium" | "large";
 type ColoredSize = `${Color}-${Size}`;
@@ -75,7 +75,7 @@ handleEvent("onClick"); // ✅
 handleEvent("click"); // 🚫
 
 // Eksempel 2: CSS Class Variants
-type Variant = "primary" | "secondary" | "danger";
+type Variant = "primary" | "secondary";
 type Size = "sm" | "md" | "lg";
 type ButtonClass = `btn-${Variant}-${Size}`;
 // Result: "btn-primary-sm" | "btn-primary-md" | "btn-secondary-lg" | ...
@@ -350,7 +350,7 @@ adw
 
 ---
 
-# Never for å filtrere ut uønskede typer
+# 'Never' for å filtrere ut uønskede typer
 
 ```typescript {1-4|1-12|1-22|10-36|22-44|46-51}{maxHeight:'420px'}
 // Felles base
@@ -410,21 +410,22 @@ type BetterNonEditableColumn = BaseColumn & {
 
 # Infer for å ekstrahere typer
 
-```typescript {1-14|15-40}{maxHeight:'400px'}
+```typescript {1-15|16-40}{maxHeight:'400px'}
 // Hent ut item type i en liste
 const persons = [
   { name: "Ola Nordmann", age: 34 },
   { name: "Kari Hansen", age: 51 },
 ];
 
-type ArrayItemType<T> = T extends (infer E)[] ? E : never;
+type ArrayItemType<T> = T extends Array<infer E> ? E : never;
 
 type Person = ArrayItemType<typeof persons>;
-
+/*
 type Person = {
   name: string;
   age: number;
 };
+*/
 
 // Fra React sin typedefinisjon
 // @types/react/index.d.ts
@@ -839,6 +840,11 @@ type NonEditableColumnProps<TData, TType extends ColumnType> = BaseColumnProps<
   TType
 > & {
   editable?: false;
+} & {
+  [key in keyof Pick<
+    EditableColumnProps<TData, TType>,
+    "isReadonlyFn" | "placeholder" | "onChange"
+  >]?: never;
 };
 
 type ColumnProps<TData, TType extends ColumnType> =
@@ -974,3 +980,124 @@ const columns = [
   }),
 ];
 ```
+
+---
+
+# Module Augmentation
+
+```typescript {1-200}{maxHeight:'430px'}
+// Preliminaries - merging av interfaces
+interface Person {
+  navn: string;
+  alder: number;
+}
+
+interface Person {
+  gate: string;
+  postnummer: number;
+  poststed: string;
+}
+
+interface Person {
+  telefonnummer: string;
+}
+
+const person: Person = {
+  navn: "Ola Nordmann",
+  alder: 40,
+  gate: "Osloveien 12",
+  postnummer: 7018,
+  poststed: "Trondheim",
+  telefonnummer: "98765432",
+};
+
+// Module Augmentation
+import "@mui/material/styles";
+
+declare module "@mui/material/styles" {
+  interface Theme {
+    bekkTema: {
+      farger: {
+        natt: string;
+        dag: string;
+        jord: string;
+        ild: string;
+      };
+      avstander: {
+        bekkeliten: number;
+        bekkepasse: number;
+        bekkestor: number;
+      };
+    };
+  }
+  interface ThemeOptions {
+    bekkTema: {
+      farger: {
+        natt: string;
+        dag: string;
+        jord: string;
+        ild: string;
+      };
+      avstander: {
+        bekkeliten: number;
+        bekkepasse: number;
+        bekkestor: number;
+      };
+    };
+  }
+}
+
+// I en annen vilkårlig fil
+import { createTheme } from "@mui/material/styles";
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#1976d2",
+    },
+    secondary: {
+      main: "#dc004e",
+    },
+  },
+  // BekkTema 🚀
+  bekkTema: {
+    farger: {
+      natt: "#000",
+      dag: "#fff",
+      jord: "#8B4513",
+      ild: "#FF4500",
+    },
+    avstander: {
+      bekkeliten: 8,
+      bekkepasse: 16,
+      bekkestor: 24,
+    },
+  },
+});
+
+// MUI Built in properties
+theme.palette.primary.main; // "#1976d2"
+theme.palette.secondary.main; // "#dc004e"
+
+// MUI theme custom properties
+theme.bekkTema.farger.natt; // "#000"
+theme.bekkTema.avstander.bekkepasse; // 16
+```
+
+---
+
+<div>
+  <h2>
+  Tusen takk takk for at dere kom, også håper jeg at noen av dere har fått utvidet komfortsonen litt når det kommer til TypeScript 🙌🏻 
+  </h2>
+</div>
+
+<style>
+div {
+  padding: 4rem;
+  display: grid;
+  place-items:center
+}
+</style>
+
+---
