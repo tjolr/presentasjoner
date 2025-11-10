@@ -14,6 +14,7 @@
     "react": "^19.2.0"
   },
   "devDependencies": {
-    "@slidev/types": "^52.6.0"
+    "@slidev/types": "^52.6.0",
+    "playwright-chromium": "^1.56.1"
   }
 }

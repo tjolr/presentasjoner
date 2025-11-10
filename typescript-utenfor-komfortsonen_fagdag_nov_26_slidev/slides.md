@@ -13,7 +13,7 @@ mdc: true
 
 # TypeScript utenfor komfortsonen
 
-![komfortsonen-header-slides](./assets/komfortsonen-header-slides.png)
+<!-- ![komfortsonen-header-slides](./assets/komfortsonen-header-slides.png) -->
 
 ---
 
