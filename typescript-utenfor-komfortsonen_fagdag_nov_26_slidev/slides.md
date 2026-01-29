@@ -27,7 +27,7 @@ mdc: true
 <div class="grid grid-cols-2 gap-8 top-30px">
   <div>
   <ul>
-    <li>99,208,449 Weekly Downloads (npmjs.com)</li>
+    <li>113 887 804 Weekly Downloads (npmjs.com, 29.01.26)</li>
     <li>Mest brukte språk på Github i 2025</li>
     <li>JetBrains Tools & Trends 2025: "Among the most dramatic rises in real-world usage over the last five years is TypeScript."</li>
     </ul>
@@ -126,7 +126,7 @@ await getJournal(journalId, patientId); // 🚫 Type error!
 
 # Typeof & Keyof
 
-```typescript {1-4|1-13|15-23|15-30|31-47|31-56|54-63}{maxHeight:'400px'}
+```typescript {1-4|1-13|15-23|15-30|31-46|31-56|54-63}{maxHeight:'400px'}
 const minKonto = {
   saldo: 100,
   eier: "Ola Normann",
@@ -1098,7 +1098,7 @@ theme.bekkTema.avstander.bekkepasse; // 16
 
 <div>
   <h2>
-  Tusen takk takk for at dere kom, også håper jeg at noen av dere har fått utvidet komfortsonen litt når det kommer til TypeScript 🙌🏻 
+  Tusen takk takk for meg 🙌🏻 
   </h2>
 </div>
 
