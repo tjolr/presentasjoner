@@ -15,6 +15,11 @@ mdc: true
 
 <!-- ![komfortsonen-header-slides](./assets/komfortsonen-header-slides.png) -->
 
+<div class="absolute bottom-10 left-10 text-left">
+  <div class="text-lg">Tjøl Ravndal</div>
+  <div class="text-md opacity-75">Bekk</div>
+</div>
+
 ---
 
 # Er TypeScript relevant i 2025?
@@ -121,7 +126,7 @@ await getJournal(journalId, patientId); // 🚫 Type error!
 
 # Typeof & Keyof
 
-```typescript {1-4|1-13|15-23|15-31|31-47|31-56|54-63}{maxHeight:'400px'}
+```typescript {1-4|1-13|15-23|15-30|31-47|31-56|54-63}{maxHeight:'400px'}
 const minKonto = {
   saldo: 100,
   eier: "Ola Normann",
@@ -430,9 +435,8 @@ type Person = {
 // Fra React sin typedefinisjon
 // @types/react/index.d.ts
 
-type ContextType<C extends Context<any>> = C extends Context<infer T>
-  ? T
-  : never;
+type ContextType<C extends Context<any>> =
+  C extends Context<infer T> ? T : never;
 
 function createContext<T>(defaultValue: T): Context<T>;
 
@@ -570,7 +574,7 @@ const rowVirtualizer = useVirtualizer(rowVirtualizerOptions);
 
 # Discriminated Union
 
-```typescript {1-3|1-20|6-26|27-60|35-60}{maxHeight:'420px'}
+```typescript {1-4|1-20|6-26|27-60|35-60}{maxHeight:'420px'}
 interface BaseTransaksjon {
   belop: number;
   dato: Date;
@@ -634,12 +638,14 @@ type Transaksjon = z.infer<typeof transaksjonSchema>;
 
 ## Eksempler på Discriminated Union i Tanstack Query
 
-```typescript {1-15|4-28|29-43|44-58|59-71|72-84|86-91|93-102}{maxHeight:'440px'}
+```typescript {1-17|18-32|33-47|48-62|63-77|78-92|94-99|101-110}{maxHeight:'440px'}
 // Eksempler på Discriminated union i Tanstack Query
 // @tanstack/query-core/build/modern/hydration-[id].d.ts
 
-interface QueryObserverPendingResult<TData = unknown, TError = DefaultError>
-  extends QueryObserverBaseResult<TData, TError> {
+interface QueryObserverPendingResult<
+  TData = unknown,
+  TError = DefaultError,
+> extends QueryObserverBaseResult<TData, TError> {
   data: undefined;
   error: null;
   isError: false;
@@ -650,8 +656,10 @@ interface QueryObserverPendingResult<TData = unknown, TError = DefaultError>
   isPlaceholderData: false;
   status: "pending";
 }
-interface QueryObserverLoadingResult<TData = unknown, TError = DefaultError>
-  extends QueryObserverBaseResult<TData, TError> {
+interface QueryObserverLoadingResult<
+  TData = unknown,
+  TError = DefaultError,
+> extends QueryObserverBaseResult<TData, TError> {
   data: undefined;
   error: null;
   isError: false;
@@ -665,7 +673,7 @@ interface QueryObserverLoadingResult<TData = unknown, TError = DefaultError>
 }
 interface QueryObserverLoadingErrorResult<
   TData = unknown,
-  TError = DefaultError
+  TError = DefaultError,
 > extends QueryObserverBaseResult<TData, TError> {
   data: undefined;
   error: TError;
@@ -680,7 +688,7 @@ interface QueryObserverLoadingErrorResult<
 }
 interface QueryObserverRefetchErrorResult<
   TData = unknown,
-  TError = DefaultError
+  TError = DefaultError,
 > extends QueryObserverBaseResult<TData, TError> {
   data: TData;
   error: TError;
@@ -693,8 +701,10 @@ interface QueryObserverRefetchErrorResult<
   isPlaceholderData: false;
   status: "error";
 }
-interface QueryObserverSuccessResult<TData = unknown, TError = DefaultError>
-  extends QueryObserverBaseResult<TData, TError> {
+interface QueryObserverSuccessResult<
+  TData = unknown,
+  TError = DefaultError,
+> extends QueryObserverBaseResult<TData, TError> {
   data: TData;
   error: null;
   isError: false;
@@ -706,8 +716,10 @@ interface QueryObserverSuccessResult<TData = unknown, TError = DefaultError>
   isPlaceholderData: false;
   status: "success";
 }
-interface QueryObserverPlaceholderResult<TData = unknown, TError = DefaultError>
-  extends QueryObserverBaseResult<TData, TError> {
+interface QueryObserverPlaceholderResult<
+  TData = unknown,
+  TError = DefaultError,
+> extends QueryObserverBaseResult<TData, TError> {
   data: TData;
   isError: false;
   error: null;
@@ -727,7 +739,7 @@ type QueryObserverResult<TData = unknown, TError = DefaultError> =
   | QueryObserverPendingResult<TData, TError>
   | QueryObserverPlaceholderResult<TData, TError>;
 
-// Bruker discriminated union for å ugyldiggjøre branches uten å ha getNext..
+// Bruker discriminated union og 'never' for å ugyldiggjøre branches uten å ha getNext..
 // Tanstack Query @tanstack/query-core/build/modern/hydration-[id].d.ts
 type FetchInfiniteQueryPages<TQueryFnData = unknown, TPageParam = unknown> =
   | {
@@ -875,11 +887,9 @@ const DEFAULT_SIZES: Record<ColumnType, number> = {
   option: 200,
 };
 
-type IsEditable<T> = T extends { editable: true } ? true : false;
-
 function createColumnForType<TData extends object, TType extends ColumnType>(
   type: TType,
-  props: ColumnProps<TData, TType>
+  props: ColumnProps<TData, TType>,
 ): Column<TData, TType> {
   const isEditable = props.editable === true;
 
@@ -905,7 +915,7 @@ function createColumnForType<TData extends object, TType extends ColumnType>(
 
 type ColumnFactoryMethods<TData> = {
   [TType in ColumnType]: (
-    props: ColumnProps<TData, TType>
+    props: ColumnProps<TData, TType>,
   ) => Column<TData, TType>;
 };
 
