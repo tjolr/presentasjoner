@@ -1,5 +1,6 @@
 ---
 theme: default
+colorSchema: dark
 background: "#1a1a1a"
 class: text-center
 highlighter: shiki
@@ -522,7 +523,7 @@ const customButtonStyle = useCustomStyle((theme) => ({
 
 # Utility types
 
-```typescript {1-14|17-60|24-60}{maxHeight:'420px'}
+```typescript {1-14|15-20|20-26|28-45}{maxHeight:'420px'}
 // Mange utility typer
 type A = Awaited<Promise<string>>;
 type PartialDemo = Partial<Todo>;
