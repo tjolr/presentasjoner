@@ -812,7 +812,7 @@ const flervalgFelt = opprettFelt<"flervalg">({
 
 # Vi lager en kolonnefabrikk 🏭
 
-```typescript {1-200}{maxHeight:'430px'}
+```typescript {1-23|25-45|47-66|68-73|74-98|101-120|122-132|134-155|151-174}{maxHeight:'430px'}
 interface OptionValue {
   value: string | number;
   label: string;
@@ -995,7 +995,7 @@ const columns = [
 
 # Module Augmentation
 
-```typescript {1-200}{maxHeight:'430px'}
+```typescript {1-15|2-24|26-44|45-60|62-64|65-87|90-96}{maxHeight:'430px'}
 // Preliminaries - merging av interfaces
 interface Person {
   navn: string;
