@@ -285,6 +285,39 @@ clicks: 1
 <div class="mt-6 text-center"><Hint /></div>
 
 ---
+
+# Varianter i ekte sanger
+
+<div class="songs mt-6">
+  <SongCard
+    title="Frihet"
+    part="Intro · 1/3"
+    chords="1 1/3 4 5"
+  />
+  <SongCard
+    title="Frihet"
+    part="Refreng · 5/7"
+    chords="2m7 1 1/5 5 4 6m 1 5/7"
+    :lines="[
+      { text: 'Frihet, frihet', chords: [{ at: 0, c: '2m7' }, { at: 8, c: '1' }] },
+      { text: 'Ren og rettferdig i evighet', chords: [{ at: 0, c: '1/5' }, { at: 10, c: '5' }] },
+      { text: 'Nåde bare nåde', chords: [{ at: 0, c: '4' }, { at: 6, c: '6m' }] },
+      { text: 'Din død ble min frihet', chords: [{ at: 0, c: '1' }, { at: 14, c: '5/7' }] },
+    ]"
+  />
+  <SongCard
+    title="Frihet"
+    part="Bro · sus"
+    chords="6m 2m7 4 5 6m 2m7 5sus 5"
+  />
+  <SongCard
+    title="All ære til deg"
+    part="Refreng · 1/3"
+    chords="4 5 1/3 6m7 2m7 5 1"
+  />
+</div>
+
+---
 clicks: 1
 ---
 
