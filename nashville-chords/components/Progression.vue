@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { chordTones, parseChord, splitTokens } from '../lib/theory'
-import { globalKey, playMode } from '../lib/state'
-import { getCtx, playBassNote, playChord } from '../lib/audio'
+import { globalKey } from '../lib/state'
+import { getCtx, playByMode } from '../lib/audio'
 
 const props = withDefaults(
   defineProps<{
@@ -49,8 +49,7 @@ function schedule() {
     const dur = (60 / bpm.value) * props.beats
     // Akkorden leses av ved planlegging, så toneartsbytte under avspilling slår inn med én gang
     const tones = chordTones(parseChord(tokens.value[idx], key.value))
-    if (playMode.value === 'bass') playBassNote(tones.bass, nextTime, dur * 0.95)
-    else playChord(tones, nextTime, dur * 0.95)
+    playByMode(tones, nextTime, dur * 0.95)
     queue.push({ time: nextTime, idx })
     nextTime += dur
     step++

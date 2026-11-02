@@ -1,5 +1,6 @@
 // Syntetisert lyd med Web Audio: varmt elektrisk piano + bass. Ingen lydfiler.
 import type { ChordTones } from './theory'
+import { playMode } from './state'
 
 let ctx: AudioContext | null = null
 let master: GainNode | null = null
@@ -89,4 +90,17 @@ export function playChord(t: ChordTones, when?: number, dur = 2.2, withBass = tr
   const at = when ?? c.currentTime
   if (withBass) playTone(t.bass, at, dur, 0.42, 'bass')
   t.tones.forEach((m, i) => playTone(m, at + i * 0.012, dur, 0.17, 'keys'))
+}
+
+/** Én pianotone i midtregisteret (rundt det vi kaller mellomtonen): grunntonen en oktav over bassen. */
+export function playPianoNote(t: ChordTones, when?: number, dur = 1.6) {
+  const c = getCtx()
+  playTone(t.bass + 12, when ?? c.currentTime, dur, 0.34, 'keys')
+}
+
+/** Spiller akkorden slik bryteren øverst til høyre er satt: bass, piano (mellomtone) eller hel akkord. */
+export function playByMode(t: ChordTones, when?: number, dur?: number) {
+  if (playMode.value === 'chord') playChord(t, when, dur)
+  else if (playMode.value === 'piano') playPianoNote(t, when, dur)
+  else playBassNote(t.bass, when, dur)
 }

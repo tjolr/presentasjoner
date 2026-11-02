@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { KEYS, chordTones, parseChord, splitTokens } from '../lib/theory'
-import { globalKey, playMode } from '../lib/state'
-import { getCtx, playBassNote, playChord } from '../lib/audio'
+import { globalKey } from '../lib/state'
+import { getCtx, playByMode, playChord } from '../lib/audio'
 
 type Level = 1 | 2 | 3
 
@@ -70,8 +70,7 @@ function play() {
   question.value.tokens.forEach((t, i) => {
     const tones = chordTones(parseChord(t, k))
     const at = c.currentTime + start + i * step
-    if (playMode.value === 'bass') playBassNote(tones.bass, at, step * 0.95)
-    else playChord(tones, at, step * 0.95)
+    playByMode(tones, at, step * 0.95)
     timers.push(setTimeout(() => (playingIdx.value = i), (start + i * step) * 1000))
   })
   timers.push(setTimeout(() => (playingIdx.value = -1), (start + n.value * step) * 1000))

@@ -7,6 +7,7 @@ import { globalKey, playMode } from './lib/state'
   <div class="gt">
     <div class="seg" role="group" aria-label="Hva klikk spiller">
       <button :class="{ sel: playMode === 'bass' }" @click="playMode = 'bass'">Bass</button>
+      <button :class="{ sel: playMode === 'piano' }" @click="playMode = 'piano'">Piano</button>
       <button :class="{ sel: playMode === 'chord' }" @click="playMode = 'chord'">Akkord</button>
     </div>
     <label class="key">
