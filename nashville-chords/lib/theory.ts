@@ -61,6 +61,8 @@ export interface ParsedChord {
   quality: Quality
   rootPc: number
   bassPc: number
+  /** Tonearten (pitch class), brukes til å legge trinnene stigende fra tonika */
+  keyPc: number
   intervals: number[]
   /** «6» og «m» for 6m, «♭7» og «» for b7 */
   numMain: string
@@ -116,6 +118,7 @@ export function parseChord(token: string, keyName: string): ParsedChord {
     quality,
     rootPc: root.pc,
     bassPc,
+    keyPc: key.pc,
     intervals,
     numMain,
     numSuffix,
@@ -134,9 +137,13 @@ export interface ChordTones {
 }
 
 export function chordTones(c: ParsedChord): ChordTones {
-  const rootMid = 55 + mod(c.rootPc - 7, 12) // G3..F#4
+  // Tonika legges i et fast register, og trinnene stiger oppover derfra
+  // (C D E F G A B stiger, ingen hopper ned en oktav midt i skalaen).
+  const tonicMid = 55 + mod(c.keyPc - 7, 12) // G3..F#4
+  const tonicBass = 40 + mod(c.keyPc - 4, 12) // E2..D#3
+  const rootMid = tonicMid + mod(c.rootPc - c.keyPc, 12)
   return {
-    bass: 40 + mod(c.bassPc - 4, 12), // E2..D#3
+    bass: tonicBass + mod(c.bassPc - c.keyPc, 12),
     tones: c.intervals.map(i => rootMid + i),
   }
 }

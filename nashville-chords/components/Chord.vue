@@ -11,12 +11,16 @@ const props = withDefaults(
     /** Toneart. Utelatt = global toneart */
     k?: string
     show?: 'both' | 'number' | 'letter'
-    size?: 'sm' | 'md' | 'lg'
+    size?: 'xs' | 'sm' | 'md' | 'lg'
     active?: boolean
     dim?: boolean
     /** Brukes til å forskyve animasjonen når toneart byttes */
     index?: number
     silent?: boolean
+    /** Uten dur/moll-farger: alt i grått og hvitt */
+    neutral?: boolean
+    /** Farg akkordnavnet og bakgrunnen etter dur/moll (nyttig når tallet skjules) */
+    tint?: boolean
   }>(),
   { show: 'both', size: 'md', index: 0 },
 )
@@ -36,7 +40,7 @@ function onClick(e: MouseEvent) {
 <template>
   <button
     class="chord"
-    :class="[chord.quality, `size-${size}`, { active, dim }]"
+    :class="[chord.quality, `size-${size}`, { active, faded: dim, neutral, tint }]"
     :style="{ '--i': index }"
     :title="`${chord.number} i ${key} = ${chord.letter}`"
     @click="onClick"
@@ -96,6 +100,22 @@ function onClick(e: MouseEvent) {
 .chord.dim {
   --accent: var(--sp-orange);
 }
+.chord.neutral {
+  --accent: var(--sp-sub);
+}
+.chord.tint {
+  background: color-mix(in srgb, var(--accent) 16%, var(--sp-surface));
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.chord.tint .let {
+  color: var(--accent);
+}
+.size-xs {
+  --w: 46px;
+  --pad: 8px 5px;
+  --fs-num: 20px;
+  --fs-let: 14px;
+}
 .size-sm {
   --w: 64px;
   --pad: 10px 12px;
@@ -129,7 +149,7 @@ function onClick(e: MouseEvent) {
     0 8px 32px -6px color-mix(in srgb, var(--accent) 60%, transparent);
   transform: translateY(-4px) scale(1.06);
 }
-.chord.dim {
+.chord.faded {
   opacity: 0.28;
   filter: saturate(0.4);
 }

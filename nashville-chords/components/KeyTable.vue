@@ -3,7 +3,8 @@ import { DIATONIC, parseChord, parseKey, chordTones } from '../lib/theory'
 import { globalKey } from '../lib/state'
 import { playByMode } from '../lib/audio'
 
-withDefaults(defineProps<{ keys?: string[] }>(), {})
+withDefaults(defineProps<{ keys?: string[]; /** Dim de sjeldneste trinnene (3m og 7°) */ fadeRare?: boolean }>(), {})
+const RARE = ['3m', '7°']
 const defaults = ['C', 'G', 'D', 'A', 'E', 'F']
 
 function play(token: string, k: string, e: MouseEvent) {
@@ -17,13 +18,13 @@ function play(token: string, k: string, e: MouseEvent) {
     <thead>
       <tr>
         <th class="corner">Toneart</th>
-        <th v-for="d in DIATONIC" :key="d" :class="parseChord(d, 'C').quality">{{ parseChord(d, 'C').number }}</th>
+        <th v-for="d in DIATONIC" :key="d" :class="[parseChord(d, 'C').quality, { rare: fadeRare && RARE.includes(d) }]">{{ parseChord(d, 'C').number }}</th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="k in keys ?? defaults" :key="k" :class="{ sel: k === globalKey }">
         <th class="key" @click="globalKey = k">{{ parseKey(k).display }}</th>
-        <td v-for="d in DIATONIC" :key="d" @click="play(d, k, $event)">
+        <td v-for="d in DIATONIC" :key="d" :class="{ rare: fadeRare && RARE.includes(d) }" @click="play(d, k, $event)">
           {{ parseChord(d, k).letter }}
         </td>
       </tr>
@@ -34,12 +35,16 @@ function play(token: string, k: string, e: MouseEvent) {
 <style scoped>
 .tbl {
   border-collapse: separate;
-  border-spacing: 6px;
-  font-size: 22px;
+  border-spacing: 5px;
+  font-size: 21px;
+  /* Like brede akkordkolonner: dur og moll tar like mye plass */
+  table-layout: fixed;
+  width: 100%;
+  max-width: 860px;
 }
 th,
 td {
-  padding: 10px 18px;
+  padding: 5px 8px;
   border-radius: 10px;
   text-align: center;
   background: var(--sp-surface);
@@ -63,6 +68,7 @@ thead th.dim {
   color: var(--sp-orange);
 }
 .corner {
+  width: 110px;
   color: var(--sp-sub);
   font-size: 14px !important;
   font-weight: 600 !important;
@@ -88,5 +94,16 @@ tr.sel td {
 tr.sel .key {
   background: var(--sp-green);
   color: #000;
+}
+.rare {
+  opacity: 0.4;
+}
+th,
+td {
+  transition:
+    background 0.25s,
+    color 0.25s,
+    transform 0.2s,
+    opacity 0.5s;
 }
 </style>

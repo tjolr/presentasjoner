@@ -1,6 +1,24 @@
 <script setup lang="ts">
+import { onBeforeUnmount, onMounted } from 'vue'
 import { KEYS, parseKey } from './lib/theory'
 import { globalKey, playMode } from './lib/state'
+
+// Knapper og nedtrekksliste beholder ellers fokus etter klikk, og da virker ikke
+// piltaster/mellomrom for neste/forrige slide. Slipp fokus med én gang.
+const release = (e: Event) => {
+  const el = (e.target as HTMLElement | null)?.closest?.('button, select, input')
+  // Et klikk på selve nedtrekkslisten åpner den. Slipp først fokus når valget er gjort (change).
+  if (el instanceof HTMLSelectElement && e.type === 'click') return
+  if (el instanceof HTMLElement) requestAnimationFrame(() => el.blur())
+}
+onMounted(() => {
+  document.addEventListener('click', release, true)
+  document.addEventListener('change', release, true)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('click', release, true)
+  document.removeEventListener('change', release, true)
+})
 </script>
 
 <template>

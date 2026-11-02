@@ -10,7 +10,7 @@ const props = withDefaults(
     chords: string
     k?: string
     show?: 'both' | 'number' | 'letter'
-    size?: 'sm' | 'md' | 'lg'
+    size?: 'xs' | 'sm' | 'md' | 'lg'
     bpm?: number
     /** Slag per akkord */
     beats?: number

@@ -182,3 +182,16 @@ table.names td.r {
 .slidev-layout ol li {
   margin: 0.4em 0;
 }
+
+/* Plass øverst så titler ikke havner under valgene (Bass/Piano/Akkord + toneart) i hjørnet */
+.slidev-layout {
+  padding-top: 4.5rem;
+}
+
+/* Sangkort: to kolonner, åpen sang tar hele bredden */
+.songs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}

@@ -24,89 +24,31 @@ fonts:
 </div>
 
 ---
+
+# Hvorfor lære Nashville-systemet?
+
+<div class="mt-6">
+
+<v-clicks>
+
+- **Bytt toneart på sekunder.** Passer sangen ikke stemmen din, flytter vi alle akkordene med de samme tallene
+- **Alle leser det samme.** Sangleder, gitar, piano og bass, uansett toneart og kapo
+- **Du ser mønstrene.** 1 4 5 og 1 5 6m 4 går igjen i mange sanger. Lær dem én gang, bruk dem i alle tonearter
+- **Lettere å huske.** Én sang er ett tallmønster, ikke tolv ulike sett med bokstaver
+- **Du møter også romertall.** Samme akkorder kan skrives IV og vi, men vi ser på dem som tall: 4 og 6m
+
+</v-clicks>
+
+</div>
+
+<v-click>
+
+<div class="mt-8 sub">Brukt av studiomusikere i Nashville for å spille inn raskt, uten å notere hver toneart.</div>
+
+</v-click>
+
+---
 clicks: 2
----
-
-# Kan vi ta den en tone ned?
-
-<div class="stack">
-
-<div>
-<div class="label">Vi spiller i G</div>
-<Progression chords="1 4 6m 5" k="G" show="letter" size="md" :controls="false" />
-</div>
-
-<div v-click="1">
-<div class="label">Så skal vi plutselig i D …</div>
-<Progression chords="1 4 6m 5" k="D" show="letter" size="md" :controls="false" />
-</div>
-
-<div v-click="2">
-<div class="label">… men det er <span class="accent">samme sang</span></div>
-<Progression chords="1 4 6m 5" k="D" show="number" size="md" :controls="false" />
-</div>
-
-</div>
-
----
-
-# Ideen
-
-<div class="mt-8">
-
-- Bokstaver sier **hvilke toner** vi spiller
-- Tall sier **hvor i skalaen** vi er
-- Tallet gjelder i **alle tonearter**
-- Brukt av studiomusikere i Nashville for å spille inn raskt, uten å notere hver toneart
-
-</div>
-
-<v-click>
-
-<div class="mt-10 sub">Kapo, sangleder som bytter toneart og nye sanger blir plutselig enkelt.</div>
-
-</v-click>
-
----
-
-# Du kommer til å se mange navn
-
-<table class="names mt-6">
-  <thead>
-    <tr><th></th><th>Nashville-tall</th><th>Romertall</th></tr>
-  </thead>
-  <tbody>
-    <tr><th>Dur på 4</th><td class="n">4</td><td class="r">IV</td></tr>
-    <tr><th>Moll på 6</th><td class="n">6m</td><td class="r">vi</td></tr>
-    <tr><th>Dim på 7</th><td class="n">7°</td><td class="r">vii°</td></tr>
-  </tbody>
-</table>
-
-<v-click>
-
-<div class="mt-8 sub">
-Samme tanke: <strong>tallakkorder</strong>, <strong>trinnakkorder</strong> og <strong>scale degrees</strong>.
-Romertall brukes mest til analyse, tall til å spille.
-</div>
-
-</v-click>
-
----
-clicks: 1
----
-
-# Skalaen i C-dur
-
-<div class="stack mt-10">
-
-<ScaleTones k="C" :numbers="$clicks >= 1" />
-
-<div v-click="1" class="sub">Hver tone har et nummer: <strong class="accent">1 2 3 4 5 6 7</strong></div>
-
-</div>
-
----
-clicks: 4
 ---
 
 # Akkordene i C-dur
@@ -115,14 +57,38 @@ clicks: 4
 
 <ScaleChords
   k="C"
-  :show="$clicks >= 1 ? 'both' : 'letter'"
-  :highlight="$clicks === 2 ? 'major' : $clicks >= 3 ? 'minor' : 'all'"
+  :show="$clicks >= 2 ? 'both' : 'letter'"
+  :neutral="$clicks < 1"
+  :tint="$clicks >= 1"
 />
 
-<div class="h-16 text-center">
-  <div v-click="1" v-if="$clicks < 2">Hver akkord får tallet til tonen den bygger på</div>
-  <div v-if="$clicks === 2"><strong class="accent">1, 4 og 5</strong> er dur</div>
-  <div v-if="$clicks >= 3"><strong style="color: var(--sp-blue)">2, 3 og 6</strong> er moll</div>
+<div class="h-20 text-center">
+  <div v-if="$clicks === 0">Akkordene i skalaen, ett trinn av gangen: C D E F G A B</div>
+  <div v-if="$clicks === 1"><strong class="accent">Dur</strong> er grønn, <strong style="color: var(--sp-blue)">moll</strong> er blå og <strong style="color: var(--sp-orange)">dim</strong> er oransje</div>
+  <div v-if="$clicks >= 2">Hver akkord får <strong class="accent">tallet</strong> til tonen den bygger på</div>
+</div>
+
+</div>
+
+---
+clicks: 2
+---
+
+# Det samme i G-dur
+
+<div class="stack mt-6">
+
+<ScaleChords
+  k="G"
+  :show="$clicks >= 2 ? 'both' : 'letter'"
+  :neutral="$clicks < 1"
+  :tint="$clicks >= 1"
+/>
+
+<div class="h-20 text-center">
+  <div v-if="$clicks === 0">Samme oppskrift, nå fra G: G A B C D E F♯</div>
+  <div v-if="$clicks === 1"><strong class="accent">Dur</strong> er grønn, <strong style="color: var(--sp-blue)">moll</strong> er blå og <strong style="color: var(--sp-orange)">dim</strong> er oransje</div>
+  <div v-if="$clicks >= 2">Hver akkord får <strong class="accent">tallet</strong> til tonen den bygger på</div>
 </div>
 
 </div>
@@ -131,14 +97,22 @@ clicks: 4
 clicks: 1
 ---
 
-# Over hverandre
+# Samme progresjon, to tonearter
 
 <div class="stack mt-6">
 
-<Progression chords="1 4 6m 5" k="C" :show="$clicks >= 1 ? 'both' : 'letter'" />
+<div>
+<div class="label">C-dur</div>
+<Progression chords="1 4 6m 5" k="C" :show="$clicks >= 1 ? 'both' : 'letter'" size="md" :controls="false" />
+</div>
+
+<div>
+<div class="label">G-dur</div>
+<Progression chords="1 4 6m 5" k="G" :show="$clicks >= 1 ? 'both' : 'letter'" size="md" :controls="false" />
+</div>
 
 <div class="h-12 text-center sub">
-  <div v-if="$clicks >= 1">C F Am G &nbsp;=&nbsp; <strong class="accent">1 4 6m 5</strong></div>
+  <div v-if="$clicks >= 1">Bokstavene er ulike, men <strong class="accent">tallene er de samme</strong>: 1 4 6m 5</div>
 </div>
 
 </div>
@@ -156,12 +130,18 @@ clicks: 1
 </div>
 
 ---
+clicks: 1
+---
 
 # Alle tonearter, samme tall
 
-<div class="stack mt-2">
+<div class="stack mt-2" style="gap: 12px">
 
-<KeyTable />
+<KeyTable :fade-rare="$clicks >= 1" />
+
+<div class="h-8 text-center">
+  <div v-if="$clicks >= 1"><strong class="accent">1, 4, 5 og 6m</strong> bærer det meste i pop, rock og lovsang. 2m kommer ofte, mens <span class="sub">3m og 7° er sjeldne</span></div>
+</div>
 
 </div>
 
@@ -191,20 +171,51 @@ layout: section
 
 ---
 
-# De store progresjonene
+# Progresjoner fra sanger teamet kan
 
-<div class="grid2 mt-8">
-  <div class="tool"><div class="name">1 – 5 – 6m – 4</div><Progression chords="1 5 6m 4" size="sm" compact /></div>
-  <div class="tool"><div class="name">1 – 4 – 6m – 5</div><Progression chords="1 4 6m 5" size="sm" compact /></div>
-  <div class="tool"><div class="name">6m – 4 – 1 – 5</div><Progression chords="6m 4 1 5" size="sm" compact /></div>
-  <div class="tool"><div class="name">1 – 4 – 5</div><Progression chords="1 4 5" size="sm" compact /></div>
+<div class="songs mt-6">
+  <SongCard
+    title="I kraft av navnet Jesus"
+    part="Refreng"
+    chords="1 2m 4 5"
+    :lines="[
+      { text: 'Navnet Jesus vender sorg til håp', chords: [{ at: 8, c: '1' }] },
+      { text: 'Navnet Jesus leger alle sår', chords: [{ at: 8, c: '2m' }] },
+      { text: 'Navnet Jesus, i kraft av navnet Jesus', chords: [{ at: 8, c: '4' }, { at: 33, c: '5' }] },
+    ]"
+  />
+  <SongCard
+    title="Om verden ble min"
+    part="Refreng"
+    chords="1 2m 6m 4 5"
+    :lines="[
+      { text: 'Jesus, Du er min dypeste lengsel', chords: [{ at: 0, c: '1' }, { at: 25, c: '2m' }] },
+      { text: 'Min sanne rikdom og frelser', chords: [{ at: 20, c: '6m' }] },
+      { text: 'Mitt hjerte er ment for Deg', chords: [{ at: 24, c: '4' }] },
+      { text: 'Bare Deg', chords: [{ at: 5, c: '5' }] },
+    ]"
+  />
+  <SongCard
+    title="Kom, løft opp hans navn"
+    part="Refreng"
+    chords="1 2m 6m 5"
+    :lines="[
+      { text: 'Kom, Løft opp hans navn', chords: [{ at: 0, c: '1' }, { at: 19, c: '2m' }] },
+      { text: 'For hele jorden skal lovsynge ham', chords: [{ at: 9, c: '6m' }, { at: 31, c: '5' }] },
+    ]"
+  />
+  <SongCard
+    title="All ære til deg"
+    part="Refreng"
+    chords="4 5 1/3 6m7 2m7 5 1"
+    :lines="[
+      { text: 'All ære til deg', chords: [{ at: 12, c: '4' }, { at: 17, c: '5' }] },
+      { text: 'All ære til deg', chords: [{ at: 12, c: '1/3' }, { at: 20, c: '6m7' }] },
+      { text: 'All ære til deg', chords: [{ at: 12, c: '2m7' }, { at: 19, c: '5' }] },
+      { text: 'All ære til deg', chords: [{ at: 12, c: '1' }] },
+    ]"
+  />
 </div>
-
-<v-click>
-
-<div class="mt-8 sub">Dekker en stor del av lovsangrepertoaret. Bytt toneart under, så følger alle med.</div>
-
-</v-click>
 
 ---
 
