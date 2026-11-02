@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { chordTones, parseChord, splitTokens } from '../lib/theory'
-import { globalKey } from '../lib/state'
+import { globalKey, playMode } from '../lib/state'
 import { getCtx, playBassNote, playChord } from '../lib/audio'
 
 const props = withDefaults(
@@ -15,8 +15,10 @@ const props = withDefaults(
     /** Slag per akkord */
     beats?: number
     controls?: boolean
+    /** Bare play-knapp, på samme linje som akkordene */
+    compact?: boolean
   }>(),
-  { show: 'both', size: 'lg', bpm: 72, beats: 4, controls: true },
+  { show: 'both', size: 'lg', bpm: 72, beats: 4, controls: true, compact: false },
 )
 
 const tokens = computed(() => splitTokens(props.chords))
@@ -25,8 +27,7 @@ const key = computed(() => props.k ?? globalKey.value)
 const playing = ref(false)
 const activeIdx = ref(-1)
 const bpm = ref(props.bpm)
-const loop = ref(true)
-const mode = ref<'chord' | 'bass'>('chord')
+const loop = true
 
 let timer: ReturnType<typeof setInterval> | undefined
 let raf = 0
@@ -38,7 +39,7 @@ function schedule() {
   const c = getCtx()
   while (nextTime < c.currentTime + 0.15) {
     const n = tokens.value.length
-    if (!loop.value && step >= n) {
+    if (!loop && step >= n) {
       queue.push({ time: nextTime, idx: -1 })
       clearInterval(timer)
       timer = undefined
@@ -48,7 +49,7 @@ function schedule() {
     const dur = (60 / bpm.value) * props.beats
     // Akkorden leses av ved planlegging, så toneartsbytte under avspilling slår inn med én gang
     const tones = chordTones(parseChord(tokens.value[idx], key.value))
-    if (mode.value === 'bass') playBassNote(tones.bass, nextTime, dur * 0.95)
+    if (playMode.value === 'bass') playBassNote(tones.bass, nextTime, dur * 0.95)
     else playChord(tones, nextTime, dur * 0.95)
     queue.push({ time: nextTime, idx })
     nextTime += dur
@@ -98,7 +99,18 @@ onBeforeUnmount(stop)
 </script>
 
 <template>
-  <div class="prog">
+  <div class="prog" :class="{ compact }">
+    <button
+      v-if="compact"
+      class="play small"
+      :class="{ on: playing }"
+      :aria-label="playing ? 'Stopp' : 'Spill av'"
+      @click="toggle"
+    >
+      <svg v-if="!playing" viewBox="0 0 24 24" width="18" height="18"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z" fill="currentColor" /></svg>
+      <svg v-else viewBox="0 0 24 24" width="18" height="18"><rect x="6" y="5" width="4.5" height="14" rx="1" fill="currentColor" /><rect x="13.5" y="5" width="4.5" height="14" rx="1" fill="currentColor" /></svg>
+    </button>
+
     <div class="cards">
       <Chord
         v-for="(t, i) in tokens"
@@ -112,25 +124,11 @@ onBeforeUnmount(stop)
       />
     </div>
 
-    <div v-if="controls" class="controls">
+    <div v-if="controls && !compact" class="controls">
       <button class="play" :class="{ on: playing }" :aria-label="playing ? 'Stopp' : 'Spill av'" @click="toggle">
         <svg v-if="!playing" viewBox="0 0 24 24" width="22" height="22"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z" fill="currentColor" /></svg>
         <svg v-else viewBox="0 0 24 24" width="22" height="22"><rect x="6" y="5" width="4.5" height="14" rx="1" fill="currentColor" /><rect x="13.5" y="5" width="4.5" height="14" rx="1" fill="currentColor" /></svg>
       </button>
-
-      <div class="seg">
-        <button :class="{ sel: mode === 'chord' }" @click="mode = 'chord'">Akkord</button>
-        <button :class="{ sel: mode === 'bass' }" @click="mode = 'bass'">Bass</button>
-      </div>
-
-      <button class="loop" :class="{ sel: loop }" title="Gjenta" @click="loop = !loop">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4" /><path d="M3 11V9a3 3 0 0 1 3-3h15" /><path d="M7 22l-4-4 4-4" /><path d="M21 13v2a3 3 0 0 1-3 3H3" /></svg>
-      </button>
-
-      <label class="bpm">
-        <span>{{ bpm }} BPM</span>
-        <input v-model.number="bpm" type="range" min="40" max="140" step="1" />
-      </label>
     </div>
   </div>
 </template>
@@ -141,6 +139,15 @@ onBeforeUnmount(stop)
   flex-direction: column;
   align-items: center;
   gap: 22px;
+}
+.prog.compact {
+  flex-direction: row;
+  gap: 14px;
+}
+.play.small {
+  width: 38px;
+  height: 38px;
+  flex: none;
 }
 .cards {
   display: flex;
@@ -179,63 +186,5 @@ onBeforeUnmount(stop)
 }
 .play.on {
   box-shadow: 0 0 0 6px rgba(30, 215, 96, 0.2);
-}
-.seg {
-  display: inline-flex;
-  background: var(--sp-surface);
-  border-radius: 999px;
-  padding: 3px;
-}
-.seg button,
-.loop {
-  border: none;
-  background: transparent;
-  color: var(--sp-sub);
-  font: inherit;
-  font-weight: 600;
-  padding: 6px 14px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition:
-    background 0.2s,
-    color 0.2s;
-}
-.seg button.sel {
-  background: var(--sp-elev2);
-  color: var(--sp-text);
-}
-.loop {
-  padding: 8px;
-  display: grid;
-  place-items: center;
-}
-.loop.sel {
-  color: var(--sp-green);
-}
-.bpm {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 130px;
-}
-.bpm input {
-  appearance: none;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--sp-elev2);
-  outline: none;
-  cursor: pointer;
-}
-.bpm input::-webkit-slider-thumb {
-  appearance: none;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--sp-text);
-  transition: transform 0.15s;
-}
-.bpm input::-webkit-slider-thumb:hover {
-  transform: scale(1.25);
-  background: var(--sp-green);
 }
 </style>

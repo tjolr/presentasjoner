@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DIATONIC, parseChord, parseKey, chordTones } from '../lib/theory'
-import { globalKey } from '../lib/state'
+import { globalKey, playMode } from '../lib/state'
 import { playBassNote, playChord } from '../lib/audio'
 
 withDefaults(defineProps<{ keys?: string[] }>(), {})
@@ -8,7 +8,7 @@ const defaults = ['C', 'G', 'D', 'A', 'E', 'F']
 
 function play(token: string, k: string, e: MouseEvent) {
   const t = chordTones(parseChord(token, k))
-  if (e.altKey || e.shiftKey) playChord(t)
+  if (playMode.value === 'chord') playChord(t)
   else playBassNote(t.bass)
 }
 </script>

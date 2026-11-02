@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { chordTones, parseChord } from '../lib/theory'
-import { globalKey } from '../lib/state'
+import { globalKey, playMode } from '../lib/state'
 import { playBassNote, playChord } from '../lib/audio'
 
 const props = withDefaults(
@@ -29,7 +29,7 @@ function onClick(e: MouseEvent) {
   burst.value++
   if (props.silent) return
   const t = chordTones(chord.value)
-  if (e.altKey || e.shiftKey) playChord(t)
+  if (playMode.value === 'chord') playChord(t)
   else playBassNote(t.bass)
 }
 </script>
