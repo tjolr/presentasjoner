@@ -47,8 +47,6 @@ fonts:
 </v-click>
 
 ---
-clicks: 5
----
 
 <div class="stack mt-6">
 
@@ -101,8 +99,6 @@ clicks: 5
 </div>
 
 ---
-clicks: 1
----
 
 # Alle tonearter, samme tall
 
@@ -116,8 +112,6 @@ clicks: 1
 
 </div>
 
----
-clicks: 1
 ---
 
 # Oppgave: hva er 1 4 6m 5 i E?
@@ -133,8 +127,8 @@ clicks: 1
 </div>
 
 ---
-layout: section
----
+
+## layout: section
 
 # Eksempler fra setlista
 
@@ -213,74 +207,50 @@ layout: section
 
 ---
 
-# Mønstre i stedet for sanger
-
-<div class="mt-8">
-
-- «Denne sangen er bare **1 – 5 – 6m – 4**»
-- Lærer du mønsteret, kan du **mange sanger** uten å lese en eneste akkord
-- Du ser fort hva som er **likt** og hva som er **annerledes**
-- Nye sanger går raskere å lære, og du kan **spille uten noter**
-
-</div>
-
-<v-click>
-
-<div class="mt-10 sub">Det er forskjellen på å huske sanger og å forstå dem.</div>
-
-</v-click>
-
----
-
-# Små varianter
+# Varianter
 
 <div class="grid3 mt-6" style="gap: 22px">
   <div class="var">
     <Chord degree="1/3" size="md" />
-    <div class="cap"><strong>1/3</strong><br>Bassen på tersen. Stigende bass.</div>
+    <div class="cap"><strong>1/3</strong><br>Myk, gående bevegelse.</div>
   </div>
+
   <div class="var">
-    <Chord degree="4/1" size="md" />
-    <div class="cap"><strong>4/1</strong><br>Akkord 4 med 1 i bassen.</div>
+    <Chord degree="4/6" size="md" />
+    <div class="cap"><strong>4/6</strong><br>Varm og løftende.</div>
   </div>
+
   <div class="var">
     <Chord degree="5/7" size="md" />
-    <div class="cap"><strong>5/7</strong><br>Tallet etter skråstreken er bassen.</div>
+    <div class="cap"><strong>5/7</strong><br>Uroligere, med en dragning videre.</div>
   </div>
   <div class="var">
     <Chord degree="1sus" size="md" />
-    <div class="cap"><strong>sus</strong><br>Tersen byttes ut med kvarten.</div>
+    <div class="cap"><strong>sus4</strong><br>Svevende og spent. Vil løses opp.</div>
   </div>
   <div class="var">
-    <Chord degree="1add9" size="md" />
-    <div class="cap"><strong>add9</strong><br>En ekstra tone på toppen.</div>
+    <Chord degree="1sus2" size="md" />
+    <div class="cap"><strong>sus2</strong><br>Åpen og luftig. Verken glad eller trist.</div>
   </div>
   <div class="var">
     <Chord degree="1" size="md" />
-    <div class="cap"><strong>1</strong><br>Grunnakkorden. Prøv ⌥-klikk på dem alle.</div>
+    <div class="cap"><strong>1</strong><br>Ren, trygg og hjemme.</div>
   </div>
 </div>
 
 <div class="mt-6 text-center"><Hint /></div>
 
 ---
-clicks: 1
----
 
-# Opp en tone i siste refreng
-
-<div class="stack mt-6" style="gap: 14px">
-
-<div class="tool"><div class="name">Refreng i G</div><Progression chords="1 5 6m 4" k="G" size="sm" compact /></div>
-
-<div v-click="1" class="tool"><div class="name">Siste refreng: opp en hel tone, i A</div><Progression chords="1 5 6m 4" k="A" size="sm" compact /></div>
-
-<div v-click="1" class="sub text-center">Tallene er de samme. Bare grunntonen flytter seg.</div>
-
+<div class="grid2" style="gap: 8px 14px">
+  <div class="tool"><div class="name"><span class="star">★</span>Stigende bass</div><Progression chords="1 1/3 4" size="sm" compact :beats="2" /></div>
+  <div class="tool"><div class="name"><span class="star">★</span>Bassen går videre opp</div><Progression chords="1 5/7 6m" size="sm" compact :beats="2" /></div>
+  <div class="tool"><div class="name"><span class="star">★</span>Spenning før hjem</div><Progression chords="5sus 5 1" size="sm" compact :beats="2" /></div>
+  <div class="tool"><div class="name">Kom hjem</div><Progression chords="4 5 1" size="sm" compact :beats="2" /></div>
+  <div class="tool"><div class="name">Bassen glir ned</div><Progression chords="4 5/4 1" size="sm" compact :beats="2" /></div>
+  <div class="tool"><div class="name">Turnaround</div><Progression chords="1 6m 4 5" size="sm" compact :beats="2" /></div>
 </div>
 
----
-clicks: 3
 ---
 
 # Lær det én gang, bruk det i alle tonearter
@@ -307,19 +277,6 @@ clicks: 3
 
 ---
 
-<h1 style="margin-bottom: 0.25em">Verktøykassen</h1>
-
-<div class="grid2" style="gap: 8px 14px">
-  <div class="tool"><div class="name"><span class="star">★</span>Stigende bass</div><Progression chords="1 1/3 4" size="sm" compact :beats="2" /></div>
-  <div class="tool"><div class="name"><span class="star">★</span>Bassen går videre opp</div><Progression chords="1 5/7 6m" size="sm" compact :beats="2" /></div>
-  <div class="tool"><div class="name"><span class="star">★</span>Spenning før hjem</div><Progression chords="5sus 5 1" size="sm" compact :beats="2" /></div>
-  <div class="tool"><div class="name">Kom hjem</div><Progression chords="4 5 1" size="sm" compact :beats="2" /></div>
-  <div class="tool"><div class="name">Bassen glir ned</div><Progression chords="4 5/4 1" size="sm" compact :beats="2" /></div>
-  <div class="tool"><div class="name">Turnaround</div><Progression chords="1 6m 4 5" size="sm" compact :beats="2" /></div>
-</div>
-
----
-
 # Frihet: 1/3 og 5/7 i en hel sang
 
 <div class="stack mt-4" style="gap: 12px">
@@ -340,8 +297,6 @@ clicks: 3
 
 <div class="mt-4 sub text-center">Thomas Neteland og Trygve Stakkeland. Toneart G, men tallene er de samme i alle tonearter.</div>
 
----
-clicks: 1
 ---
 
 # Øvelse: 1 – 1/3 – 4 – 5
@@ -369,15 +324,13 @@ clicks: 1
 </div>
 
 ---
-layout: section
----
+
+## layout: section
 
 <div class="eyebrow">Del 5</div>
 
 # Fra øyet til <span class="accent">øret</span>
 
----
-clicks: 3
 ---
 
 # Tre steg
@@ -452,8 +405,8 @@ clicks: 3
 </div>
 
 ---
-layout: section
----
+
+## layout: section
 
 <div class="eyebrow">Del 6</div>
 
@@ -480,8 +433,8 @@ layout: section
 <GuessQuiz />
 
 ---
-layout: section
----
+
+## layout: section
 
 <div class="eyebrow">Del 7</div>
 
