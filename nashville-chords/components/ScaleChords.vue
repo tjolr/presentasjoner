@@ -28,6 +28,7 @@ const quality = (t: string) => parseChord(t, 'C').quality
       size="md"
       :neutral="neutral"
       :tint="tint"
+      white
       :dim="highlight !== 'all' && quality(t) !== highlight"
     />
   </div>

@@ -21,6 +21,8 @@ const props = withDefaults(
     neutral?: boolean
     /** Farg akkordnavnet og bakgrunnen etter dur/moll (nyttig når tallet skjules) */
     tint?: boolean
+    /** Hvit tekst på tall og akkorder, men behold bakgrunn og kantfarge */
+    white?: boolean
   }>(),
   { show: 'both', size: 'md', index: 0 },
 )
@@ -40,7 +42,7 @@ function onClick(e: MouseEvent) {
 <template>
   <button
     class="chord"
-    :class="[chord.quality, `size-${size}`, { active, faded: dim, neutral, tint }]"
+    :class="[chord.quality, `size-${size}`, { active, faded: dim, neutral, tint, white }]"
     :style="{ '--i': index }"
     :title="`${chord.number} i ${key} = ${chord.letter}`"
     @click="onClick"
@@ -109,6 +111,10 @@ function onClick(e: MouseEvent) {
 }
 .chord.tint .let {
   color: var(--accent);
+}
+.chord.white .num,
+.chord.white .let {
+  color: #fff;
 }
 .size-xs {
   --w: 46px;

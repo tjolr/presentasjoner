@@ -72,24 +72,18 @@ clicks: 5
 
 ---
 
-## clicks: 1
-
-# Samme progresjon, to tonearter
+# Noen dropper å skrive moll
 
 <div class="stack mt-6">
 
 <div>
-<div class="label">C-dur</div>
-<Progression chords="1 4 6m 5" k="C" :show="$clicks >= 1 ? 'both' : 'letter'" size="md" :controls="false" />
+<div class="label">Med moll</div>
+<Progression chords="1 2m 3m 4 5 6m 7" show="number" size="md" :controls="false" />
 </div>
 
 <div>
-<div class="label">G-dur</div>
-<Progression chords="1 4 6m 5" k="G" :show="$clicks >= 1 ? 'both' : 'letter'" size="md" :controls="false" />
-</div>
-
-<div class="h-12 text-center sub">
-  <div v-if="$clicks >= 1">Bokstavene er ulike, men <strong class="accent">tallene er de samme</strong>: 1 4 6m 5</div>
+<div class="label">Uten moll</div>
+<Progression chords="1 2 3 4 5 6 7" show="number" size="md" :controls="false" />
 </div>
 
 </div>
@@ -107,8 +101,8 @@ clicks: 5
 </div>
 
 ---
-
-## clicks: 1
+clicks: 1
+---
 
 # Alle tonearter, samme tall
 
@@ -123,8 +117,8 @@ clicks: 5
 </div>
 
 ---
-
-## clicks: 1
+clicks: 1
+---
 
 # Oppgave: hva er 1 4 6m 5 i E?
 
@@ -139,8 +133,8 @@ clicks: 5
 </div>
 
 ---
-
-## layout: section
+layout: section
+---
 
 <div class="eyebrow">Del 4</div>
 
@@ -236,8 +230,8 @@ clicks: 5
 </v-click>
 
 ---
-
-## clicks: 1
+clicks: 1
+---
 
 # Akkordkart i tall
 
@@ -284,8 +278,8 @@ clicks: 5
 <div class="mt-6 text-center"><Hint /></div>
 
 ---
-
-## clicks: 1
+clicks: 1
+---
 
 # Opp en tone i siste refreng
 
@@ -300,8 +294,8 @@ clicks: 5
 </div>
 
 ---
-
-## clicks: 3
+clicks: 3
+---
 
 # Lær det én gang, bruk det i alle tonearter
 
@@ -339,8 +333,8 @@ clicks: 5
 </div>
 
 ---
-
-## clicks: 1
+clicks: 1
+---
 
 # Øvelse: 1 – 1/3 – 4 – 5
 
@@ -367,16 +361,16 @@ clicks: 5
 </div>
 
 ---
-
-## layout: section
+layout: section
+---
 
 <div class="eyebrow">Del 5</div>
 
 # Fra øyet til <span class="accent">øret</span>
 
 ---
-
-## clicks: 3
+clicks: 3
+---
 
 # Tre steg
 
@@ -450,8 +444,8 @@ clicks: 5
 </div>
 
 ---
-
-## layout: section
+layout: section
+---
 
 <div class="eyebrow">Del 6</div>
 
@@ -478,8 +472,8 @@ clicks: 5
 <GuessQuiz />
 
 ---
-
-## layout: section
+layout: section
+---
 
 <div class="eyebrow">Del 7</div>
 
