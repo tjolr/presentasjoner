@@ -128,8 +128,6 @@ fonts:
 
 ---
 
-## layout: section
-
 # Eksempler fra setlista
 
 ---
@@ -277,8 +275,6 @@ fonts:
 
 ---
 
-## layout: section
-
 <div class="eyebrow">Del 5</div>
 
 # Fra øyet til <span class="accent">øret</span>
@@ -353,80 +349,5 @@ fonts:
 <div class="tool"><div class="name">Så 1 – 5 – 6m – 4</div><Progression chords="1 5 6m 4" size="sm" compact /></div>
 
 <div class="sub text-center">Syng tallene eller tonenavnene på bassen mens den spiller.</div>
-
-</div>
-
----
-
-## layout: section
-
-<div class="eyebrow">Del 6</div>
-
-# Øv <span class="accent">sammen</span>
-
----
-
-# Tre øvelser
-
-<div class="mt-6">
-
-1. **Spill sammen:** alle spiller 1 – 5 – 6m – 4 i en toneart du velger. Vi bytter toneart.
-2. **Gjett tallene:** jeg spiller en progresjon, du sier tallene.
-3. **Uten noter:** spill samme progresjon i en toneart du ikke har øvd i.
-
-</div>
-
-<div class="stack mt-6"><Progression chords="1 5 6m 4" size="sm" compact /></div>
-
----
-
-<div class="eyebrow">Del 6 · Gjett tallene</div>
-
-<GuessQuiz />
-
----
-
-## layout: section
-
-<div class="eyebrow">Del 7</div>
-
-# Hjemmelekse
-
----
-
-# Før neste gang
-
-<div class="mt-6">
-
-- Skriv **én sang du kan** i tall
-- Finn **sanger som deler progresjon**
-- Lytt etter **bassen** i musikk du hører på
-
-</div>
-
-<v-click>
-
-<div class="mt-10 sub">Start med 1, 4 og 5. Resten kommer av seg selv.</div>
-
-</v-click>
-
----
-
-layout: center
-class: text-center
-
----
-
-<div class="stack">
-
-<div>
-
-# Takk!
-
-<div class="sub">Samme tall. Alle tonearter.</div>
-
-</div>
-
-<Progression chords="1 5 6m 4" size="md" />
 
 </div>

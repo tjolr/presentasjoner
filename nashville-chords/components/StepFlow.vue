@@ -34,7 +34,7 @@ const steps = [
   border-radius: 16px;
   background: var(--sp-surface);
   text-align: center;
-  opacity: 0.35;
+  opacity: 0.8;
   transform: scale(0.95);
   transition:
     opacity 0.4s,
@@ -78,7 +78,8 @@ const steps = [
 .text {
   margin-top: 6px;
   font-size: 16px;
-  color: var(--sp-sub);
+  color: var(--sp-text, #fff);
+  opacity: 0.85;
 }
 .link {
   width: 40px;
