@@ -136,78 +136,79 @@ clicks: 1
 layout: section
 ---
 
-<div class="eyebrow">Del 4</div>
-
-# Forenkling og <span class="accent">gjenbruk</span>
+# Eksempler fra setlista
 
 ---
 
-# Frihet: 1/3 og 5/7 i en hel sang
-
-<div class="stack mt-4" style="gap: 12px">
-
-<div class="tool"><div class="name">Vers og intro · <strong>1/3</strong></div><Progression chords="1 1/3 4 5" size="sm" compact /></div>
-
-<div class="tool">
-<div class="name">Refreng · <strong>5/7</strong> i slutten av første halvdel</div>
-<div class="stack" style="gap: 8px">
-<Progression chords="2m7 1 1/5 5" size="sm" compact />
-<Progression chords="4 6m 1 5/7" size="sm" compact />
-<Progression chords="2m 6m7 1 5" size="sm" compact />
-<Progression chords="4 5" size="sm" compact />
-</div>
-</div>
-
-</div>
-
-<div class="mt-4 sub text-center">Thomas Neteland og Trygve Stakkeland. Toneart G, men tallene er de samme i alle tonearter.</div>
-
----
-
-# Progresjoner fra sanger teamet kan
+# I kraft av navnet Jesus
 
 <div class="songs mt-6">
-  <SongCard
-    title="I kraft av navnet Jesus"
-    part="Refreng"
-    chords="1 2m 4 5"
-    :lines="[
-      { text: 'Navnet Jesus vender sorg til håp', chords: [{ at: 8, c: '1' }] },
-      { text: 'Navnet Jesus leger alle sår', chords: [{ at: 8, c: '2m' }] },
-      { text: 'Navnet Jesus, i kraft av navnet Jesus', chords: [{ at: 8, c: '4' }, { at: 33, c: '5' }] },
-    ]"
-  />
-  <SongCard
-    title="Om verden ble min"
-    part="Refreng"
-    chords="1 2m 6m 4 5"
-    :lines="[
-      { text: 'Jesus, Du er min dypeste lengsel', chords: [{ at: 0, c: '1' }, { at: 25, c: '2m' }] },
-      { text: 'Min sanne rikdom og frelser', chords: [{ at: 20, c: '6m' }] },
-      { text: 'Mitt hjerte er ment for Deg', chords: [{ at: 24, c: '4' }] },
-      { text: 'Bare Deg', chords: [{ at: 5, c: '5' }] },
-    ]"
-  />
-  <SongCard
-    title="Kom, løft opp hans navn"
-    part="Refreng"
-    chords="1 2m 6m 5"
-    :lines="[
-      { text: 'Kom, Løft opp hans navn', chords: [{ at: 0, c: '1' }, { at: 19, c: '2m' }] },
-      { text: 'For hele jorden skal lovsynge ham', chords: [{ at: 9, c: '6m' }, { at: 31, c: '5' }] },
-    ]"
-  />
-  <SongCard
-    title="All ære til deg"
-    part="Refreng"
-    chords="4 5 1/3 6m7 2m7 5 1"
-    :lines="[
-      { text: 'All ære til deg', chords: [{ at: 12, c: '4' }, { at: 17, c: '5' }] },
-      { text: 'All ære til deg', chords: [{ at: 12, c: '1/3' }, { at: 20, c: '6m7' }] },
-      { text: 'All ære til deg', chords: [{ at: 12, c: '2m7' }, { at: 19, c: '5' }] },
-      { text: 'All ære til deg', chords: [{ at: 12, c: '1' }] },
-    ]"
-  />
+<SongCard
+  expanded
+  title="I kraft av navnet Jesus"
+  part="Refreng"
+  chords="1 2m 4 5"
+  :lines="[
+    { text: 'Navnet Jesus vender sorg til håp', chords: [{ at: 8, c: '1' }] },
+    { text: 'Navnet Jesus leger alle sår', chords: [{ at: 8, c: '2m' }] },
+    { text: 'Navnet Jesus, i kraft av navnet Jesus', chords: [{ at: 8, c: '4' }, { at: 33, c: '5' }] },
+  ]"
+/>
+</div>
+
+---
+
+# Om verden ble min
+
+<div class="songs mt-6">
+<SongCard
+  expanded
+  title="Om verden ble min"
+  part="Refreng"
+  chords="1 2m 6m 4 5"
+  :lines="[
+    { text: 'Jesus, Du er min dypeste lengsel', chords: [{ at: 0, c: '1' }, { at: 25, c: '2m' }] },
+    { text: 'Min sanne rikdom og frelser', chords: [{ at: 20, c: '6m' }] },
+    { text: 'Mitt hjerte er ment for Deg', chords: [{ at: 24, c: '4' }] },
+    { text: 'Bare Deg', chords: [{ at: 5, c: '5' }] },
+  ]"
+/>
+</div>
+
+---
+
+# Kom, løft opp hans navn
+
+<div class="songs mt-6">
+<SongCard
+  expanded
+  title="Kom, løft opp hans navn"
+  part="Refreng"
+  chords="1 2m 6m 5"
+  :lines="[
+    { text: 'Kom, Løft opp hans navn', chords: [{ at: 0, c: '1' }, { at: 19, c: '2m' }] },
+    { text: 'For hele jorden skal lovsynge ham', chords: [{ at: 9, c: '6m' }, { at: 31, c: '5' }] },
+  ]"
+/>
+</div>
+
+---
+
+# All ære til deg
+
+<div class="songs mt-6">
+<SongCard
+  expanded
+  title="All ære til deg"
+  part="Refreng"
+  chords="4 5 1/3 6m7 2m7 5 1"
+  :lines="[
+    { text: 'All ære til deg', chords: [{ at: 12, c: '4' }, { at: 17, c: '5' }] },
+    { text: 'All ære til deg', chords: [{ at: 12, c: '1/3' }, { at: 20, c: '6m7' }] },
+    { text: 'All ære til deg', chords: [{ at: 12, c: '2m7' }, { at: 19, c: '5' }] },
+    { text: 'All ære til deg', chords: [{ at: 12, c: '1' }] },
+  ]"
+/>
 </div>
 
 ---
@@ -228,21 +229,6 @@ layout: section
 <div class="mt-10 sub">Det er forskjellen på å huske sanger og å forstå dem.</div>
 
 </v-click>
-
----
-clicks: 1
----
-
-# Akkordkart i tall
-
-<div class="stack mt-4" style="gap: 14px">
-
-<div class="tool" style="width: 560px"><div class="name">Vers</div><Progression chords="1 5 6m 4" size="sm" compact /></div>
-<div class="tool" style="width: 560px"><div class="name">Refreng</div><Progression chords="4 1 5 6m" size="sm" compact /></div>
-
-<div v-click="1" class="sub text-center">Samme kart i alle tonearter. Velg toneart øverst til høyre.</div>
-
-</div>
 
 ---
 
@@ -331,6 +317,28 @@ clicks: 3
   <div class="tool"><div class="name">Bassen glir ned</div><Progression chords="4 5/4 1" size="sm" compact :beats="2" /></div>
   <div class="tool"><div class="name">Turnaround</div><Progression chords="1 6m 4 5" size="sm" compact :beats="2" /></div>
 </div>
+
+---
+
+# Frihet: 1/3 og 5/7 i en hel sang
+
+<div class="stack mt-4" style="gap: 12px">
+
+<div class="tool"><div class="name">Vers og intro · <strong>1/3</strong></div><Progression chords="1 1/3 4 5" size="sm" compact /></div>
+
+<div class="tool">
+<div class="name">Refreng · <strong>5/7</strong> i slutten av første halvdel</div>
+<div class="stack" style="gap: 8px">
+<Progression chords="2m7 1 1/5 5" size="sm" compact />
+<Progression chords="4 6m 1 5/7" size="sm" compact />
+<Progression chords="2m 6m7 1 5" size="sm" compact />
+<Progression chords="4 5" size="sm" compact />
+</div>
+</div>
+
+</div>
+
+<div class="mt-4 sub text-center">Thomas Neteland og Trygve Stakkeland. Toneart G, men tallene er de samme i alle tonearter.</div>
 
 ---
 clicks: 1

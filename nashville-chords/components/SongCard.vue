@@ -19,11 +19,13 @@ const props = defineProps<{
   chords: string
   /** Teksten med akkorder over, vist med «Vis sang» */
   lines?: SongLine[]
+  /** Alltid åpen, uten knapp (til hele sider) */
+  expanded?: boolean
 }>()
 
-const open = computed(() => openSong.value === props.title)
+const open = computed(() => props.expanded || openSong.value === props.title)
 // Når en annen sang er åpen, skjules denne helt så det er plass til teksten
-const folded = computed(() => openSong.value !== '' && !open.value)
+const folded = computed(() => !props.expanded && openSong.value !== '' && !open.value)
 const toggle = () => (openSong.value = open.value ? '' : props.title)
 const parts = (c: string) => {
   const p = parseChord(c, globalKey.value)
@@ -40,9 +42,10 @@ function play(c: string) {
   <div v-show="!folded" class="song" :class="{ open }">
     <div class="head">
       <div class="name">
-        {{ title }}<span v-if="part" class="part"> · {{ part }}</span>
+        <template v-if="expanded"><span class="part">{{ part }}</span></template>
+        <template v-else>{{ title }}<span v-if="part" class="part"> · {{ part }}</span></template>
       </div>
-      <button v-if="hasLines" class="show" :class="{ on: open }" @click="toggle">
+      <button v-if="hasLines && !expanded" class="show" :class="{ on: open }" @click="toggle">
         {{ open ? 'Skjul sang' : 'Vis sang' }}
       </button>
     </div>
