@@ -322,7 +322,7 @@ fonts:
 <div class="grid2" style="gap: 14px 18px">
   <Interval :notes="[1, 5]" label="1 → 5 · Twinkle twinkle" />
   <Interval :notes="[1, 4]" label="1 → 4 · Her kommer bruden" />
-  <Interval :notes="[1, 6]" label="1 → 6 · My Bonnie" />
+  <Interval :notes="[1, 6]" label="1 → 6 · Mine hender er fulle av blomster" />
   <Interval :notes="[1, 8]" label="1 → 8 · Somewhere over the rainbow" />
 </div>
 
@@ -350,4 +350,68 @@ fonts:
 
 <div class="sub text-center">Syng tallene eller tonenavnene på bassen mens den spiller.</div>
 
+</div>
+
+---
+
+# Frihet
+
+<div class="songs mt-6">
+<SongCard
+  expanded
+  title="Frihet"
+  part="Vers"
+  chords="1 1/3 4 5"
+  :lines="[
+    { text: 'Ved ditt navn', chords: [{ at: 0, c: '1' }] },
+    { text: 'Har jeg funnet fred', chords: [{ at: 0, c: '1/3' }] },
+    { text: 'Håp for min sjel', chords: [{ at: 0, c: '4' }] },
+    { text: 'Du gjorde meg hel', chords: [{ at: 0, c: '5' }] },
+  ]"
+/>
+</div>
+
+---
+
+# Frihet
+
+<div class="songs mt-6">
+<SongCard
+  expanded
+  title="Frihet"
+  part="Refreng"
+  chords="2m7 1 1/5 5 4 6m 1 5/7 2m 6m7 1 5 4 5"
+  :lines="[
+    { text: 'Frihet, frihet', chords: [{ at: 0, c: '2m7' }, { at: 4, c: '1' }, { at: 8, c: '1/5' }, { at: 12, c: '5' }] },
+    { text: 'Ren og rettferdig i evighet', chords: [{ at: 0, c: '4' }, { at: 8, c: '6m' }, { at: 14, c: '1' }, { at: 21, c: '5/7' }] },
+    { text: 'Nåde bare nåde', chords: [{ at: 0, c: '2m' }, { at: 4, c: '6m7' }, { at: 9, c: '1' }, { at: 13, c: '5' }] },
+    { text: 'Din død ble min frihet', chords: [{ at: 0, c: '4' }, { at: 12, c: '5' }] },
+  ]"
+/>
+</div>
+
+---
+
+# Alle akkordene
+
+<div class="stack mt-6" style="gap: 22px">
+  <div class="flex justify-center" style="gap: 14px">
+    <Chord degree="1" size="sm" />
+    <Chord degree="2m" size="sm" />
+    <Chord degree="3m" size="sm" />
+    <Chord degree="4" size="sm" />
+    <Chord degree="5" size="sm" />
+    <Chord degree="6m" size="sm" />
+    <Chord degree="7°" size="sm" />
+  </div>
+  <div class="flex justify-center" style="gap: 14px">
+    <Chord degree="1/3" size="sm" />
+    <Chord degree="4/6" size="sm" />
+    <Chord degree="5/7" size="sm" />
+  </div>
+  <div class="flex justify-center" style="gap: 14px">
+    <Chord degree="1" size="sm" />
+    <Chord degree="1sus2" size="sm" />
+    <Chord degree="1sus4" size="sm" />
+  </div>
 </div>
