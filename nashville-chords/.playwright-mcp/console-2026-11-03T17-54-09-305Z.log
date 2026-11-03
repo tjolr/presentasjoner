@@ -218,3 +218,14 @@ If this is a native custom element, make sure to exclude it from component resol
   at <Play onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
   at <RouterView> 
   at <App> @ http://localhost:3030/node_modules/.pnpm/@vue+runtime-core@3.5.44/node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler.js?v=ce6f1342:49
+[ 1781302ms] [WARNING] [Vue warn]: Failed to resolve component: Hint
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <Slides.mdslidev13> 
+  at <AsyncComponentWrapper> 
+  at <SlideWrapper key="130" clicks-context= {current: undefined, clicksStart: 0, relativeSizeMap: undefined, maxMap: undefined, isMounted: undefined} route= {no: 13, meta: Proxy(Object), load: , component: Object}  ... > 
+  at <TransitionGroup id="slideshow" tag="div" class=""  ... > 
+  at <SlidesShow render-context="slide" > 
+  at <SlideContainer style= {background: var(--slidev-slide-container-background, black)} width=undefined is-main=""  ... > 
+  at <Play onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <App> @ http://localhost:3030/node_modules/.pnpm/@vue+runtime-core@3.5.44/node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler.js?v=ce6f1342:49

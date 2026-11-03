@@ -277,54 +277,6 @@ fonts:
 
 ---
 
-# Frihet: 1/3 og 5/7 i en hel sang
-
-<div class="stack mt-4" style="gap: 12px">
-
-<div class="tool"><div class="name">Vers og intro · <strong>1/3</strong></div><Progression chords="1 1/3 4 5" size="sm" compact /></div>
-
-<div class="tool">
-<div class="name">Refreng · <strong>5/7</strong> i slutten av første halvdel</div>
-<div class="stack" style="gap: 8px">
-<Progression chords="2m7 1 1/5 5" size="sm" compact />
-<Progression chords="4 6m 1 5/7" size="sm" compact />
-<Progression chords="2m 6m7 1 5" size="sm" compact />
-<Progression chords="4 5" size="sm" compact />
-</div>
-</div>
-
-</div>
-
-<div class="mt-4 sub text-center">Thomas Neteland og Trygve Stakkeland. Toneart G, men tallene er de samme i alle tonearter.</div>
-
----
-
-# Øvelse: 1 – 1/3 – 4 – 5
-
-<div class="stack mt-4">
-
-<Progression chords="1 1/3 4 5" size="md" />
-
-<div v-click="1" class="sub text-center">Alle spiller den i G, så D, så A, så en toneart du selv velger.<br>Nybegynnere velger tonearter de kan grepene i, de erfarne tar E, B eller F♯.</div>
-
-</div>
-
----
-
-# For deg som vil mer: ♭7
-
-<div class="stack mt-6">
-
-<Progression chords="1 b7 4 1" size="md" />
-
-<div class="sub text-center" style="max-width: 640px">
-♭7 er akkorden en hel tone under 1. I G er det F. Vanlig i moderne lovsang, og den skrives <strong>♭7</strong> uten at du trenger noe mer teori.
-</div>
-
-</div>
-
----
-
 ## layout: section
 
 <div class="eyebrow">Del 5</div>
