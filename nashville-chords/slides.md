@@ -25,17 +25,18 @@ fonts:
 
 ---
 
-# Hvorfor lære Nashville-systemet?
+# Hvorfor lære tallsystemet/Nasville?
 
 <div class="mt-6">
 
+<div class="my-8 sub">Brukt av studiomusikere i Nashville for å spille inn raskt, uten å notere hver toneart.</div>
+
 <v-clicks>
 
-- **Bytt toneart på sekunder.** Passer sangen ikke stemmen din, flytter vi alle akkordene med de samme tallene
-- **Alle leser det samme.** Sangleder, gitar, piano og bass, uansett toneart og kapo
-- **Du ser mønstrene.** 1 4 5 og 1 5 6m 4 går igjen i mange sanger. Lær dem én gang, bruk dem i alle tonearter
-- **Lettere å huske.** Én sang er ett tallmønster, ikke tolv ulike sett med bokstaver
-- **Du møter også romertall.** Samme akkorder kan skrives IV og vi, men vi ser på dem som tall: 4 og 6m
+- **Enklere å bytte toneart**
+- **Alle i band leser det samme**
+- **Kjenne igjen mønster på tvers av tonearter**
+- **Øving på sanger kan være mer effektivt**
 
 </v-clicks>
 
@@ -43,15 +44,11 @@ fonts:
 
 <v-click>
 
-<div class="mt-8 sub">Brukt av studiomusikere i Nashville for å spille inn raskt, uten å notere hver toneart.</div>
-
 </v-click>
 
 ---
-clicks: 2
+clicks: 5
 ---
-
-# Akkordene i C-dur
 
 <div class="stack mt-6">
 
@@ -62,40 +59,20 @@ clicks: 2
   :tint="$clicks >= 1"
 />
 
-<div class="h-20 text-center">
-  <div v-if="$clicks === 0">Akkordene i skalaen, ett trinn av gangen: C D E F G A B</div>
-  <div v-if="$clicks === 1"><strong class="accent">Dur</strong> er grønn, <strong style="color: var(--sp-blue)">moll</strong> er blå og <strong style="color: var(--sp-orange)">dim</strong> er oransje</div>
-  <div v-if="$clicks >= 2">Hver akkord får <strong class="accent">tallet</strong> til tonen den bygger på</div>
-</div>
-
-</div>
-
----
-clicks: 2
----
-
-# Det samme i G-dur
-
-<div class="stack mt-6">
-
+<div :style="{ opacity: $clicks >= 3 ? 1 : 0, transition: 'opacity .3s' }">
 <ScaleChords
   k="G"
-  :show="$clicks >= 2 ? 'both' : 'letter'"
-  :neutral="$clicks < 1"
-  :tint="$clicks >= 1"
+  :show="$clicks >= 5 ? 'both' : 'letter'"
+  :neutral="$clicks < 4"
+  :tint="$clicks >= 4"
 />
-
-<div class="h-20 text-center">
-  <div v-if="$clicks === 0">Samme oppskrift, nå fra G: G A B C D E F♯</div>
-  <div v-if="$clicks === 1"><strong class="accent">Dur</strong> er grønn, <strong style="color: var(--sp-blue)">moll</strong> er blå og <strong style="color: var(--sp-orange)">dim</strong> er oransje</div>
-  <div v-if="$clicks >= 2">Hver akkord får <strong class="accent">tallet</strong> til tonen den bygger på</div>
 </div>
 
 </div>
 
 ---
-clicks: 1
----
+
+## clicks: 1
 
 # Samme progresjon, to tonearter
 
@@ -130,8 +107,8 @@ clicks: 1
 </div>
 
 ---
-clicks: 1
----
+
+## clicks: 1
 
 # Alle tonearter, samme tall
 
@@ -146,8 +123,8 @@ clicks: 1
 </div>
 
 ---
-clicks: 1
----
+
+## clicks: 1
 
 # Oppgave: hva er 1 4 6m 5 i E?
 
@@ -162,8 +139,8 @@ clicks: 1
 </div>
 
 ---
-layout: section
----
+
+## layout: section
 
 <div class="eyebrow">Del 4</div>
 
@@ -259,8 +236,8 @@ layout: section
 </v-click>
 
 ---
-clicks: 1
----
+
+## clicks: 1
 
 # Akkordkart i tall
 
@@ -307,8 +284,8 @@ clicks: 1
 <div class="mt-6 text-center"><Hint /></div>
 
 ---
-clicks: 1
----
+
+## clicks: 1
 
 # Opp en tone i siste refreng
 
@@ -323,8 +300,8 @@ clicks: 1
 </div>
 
 ---
-clicks: 3
----
+
+## clicks: 3
 
 # Lær det én gang, bruk det i alle tonearter
 
@@ -362,8 +339,8 @@ clicks: 3
 </div>
 
 ---
-clicks: 1
----
+
+## clicks: 1
 
 # Øvelse: 1 – 1/3 – 4 – 5
 
@@ -390,16 +367,16 @@ clicks: 1
 </div>
 
 ---
-layout: section
----
+
+## layout: section
 
 <div class="eyebrow">Del 5</div>
 
 # Fra øyet til <span class="accent">øret</span>
 
 ---
-clicks: 3
----
+
+## clicks: 3
 
 # Tre steg
 
@@ -473,8 +450,8 @@ clicks: 3
 </div>
 
 ---
-layout: section
----
+
+## layout: section
 
 <div class="eyebrow">Del 6</div>
 
@@ -501,8 +478,8 @@ layout: section
 <GuessQuiz />
 
 ---
-layout: section
----
+
+## layout: section
 
 <div class="eyebrow">Del 7</div>
 
@@ -527,8 +504,10 @@ layout: section
 </v-click>
 
 ---
+
 layout: center
 class: text-center
+
 ---
 
 <div class="stack">
