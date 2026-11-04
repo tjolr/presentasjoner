@@ -47,6 +47,8 @@ fonts:
 </v-click>
 
 ---
+clicks: 5
+---
 
 <div class="stack mt-6">
 
