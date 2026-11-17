@@ -24,7 +24,7 @@ layout: default
 <Scope view="wave" bleed :height="290" class="mt-6" />
 
 <!--
-Start: spill en sang på gitaren. Neste slide: ta den opp.
+Start: spill en sang fra korpuset på gitaren (f.eks. What a Wonderful World). Neste slide: ta den opp, så kan samme klipp brukes som query i demoen til slutt.
 Skru på «Mikrofon» oppe til høyre.
 -->
 
@@ -40,7 +40,7 @@ Skru på «Mikrofon» oppe til høyre.
 Spill introsangen. Ta opp her («Ta opp»), eller ta opp i Logic og dra fila inn.
 Klikk i bølgen for å spille fra et punkt.
 De 3 siste klippene huskes (også etter omlasting). På analyseslidene: velg «Lydklipp» oppe til høyre og ▶ for å spille det gjennom analysen, eller «Mikrofon» for live.
-Ta gjerne også opp et enklere klipp: noen få akkorder (G – C – D – Em), så Fader Jakob med enkelttoner.
+Ta gjerne også opp et enklere klipp: noen få akkorder (G – C – D – Em), så melodien til en korpussang med enkelttoner (Fader Jakob, Blinke, What a Wonderful World, Let It Be).
 -->
 
 ---
@@ -151,8 +151,8 @@ clicks: 8
 </div>
 
 ---
-
-## clicks: 2
+clicks: 2
+---
 
 # Steg 1: lyd → <span class="accent">tall</span>
 
@@ -173,12 +173,14 @@ clicks: 8
 </div>
 <div v-if="$clicks >= 2">
 
-- Synger du **høyere eller lysere**, legger du til en **konstant** på alle tallene. Det er fortsatt samme melodi
+- Spiller du **høyere eller lysere**, legger du til en **konstant** på alle tallene. Det er fortsatt samme melodi
 
 </div>
 
 </div>
 </div>
+
+<OsNote term="ingest pipeline">Som <code>text_embedding</code> gjør tekst til tall før indeksering. Her gjør pitch-sporingen lyd til tall, likt for alt vi indekserer og for queryen.</OsNote>
 
 <!--
 Tonen vi fant på «Hvilken tone spilles?» blir et tall, hvert 30. ms.
@@ -195,6 +197,7 @@ Poenget: MIDI-tall er en lineær skala. Frekvens er eksponentiell (×2 per 12 st
 
 <div class="sub text-center mt-1">Lyd: 48 000 tall i sekundet, ingen sier «60». MIDI: «tangent 60 ned». Steg 1 er gjort for oss.</div>
 
+
 <!--
 Husk lydbølgen fra starten: der måtte vi regne oss fram til tonen.
 MIDI er ikke lyd, det er noter som data: «trykk ned tangent 60, slipp tangent 60». Som forskjellen på et bilde av tekst og selve teksten.
@@ -203,8 +206,8 @@ Sangkorpuset vårt er også i praksis MIDI: lister med tall.
 -->
 
 ---
-
-## clicks: 1
+clicks: 1
+---
 
 # Steg 2: høyden spiller ingen <span class="accent">rolle</span>
 
@@ -215,13 +218,15 @@ Sangkorpuset vårt er også i praksis MIDI: lister med tall.
 <div v-else>Trekk fra gjennomsnittet: <strong class="accent">bare formen er igjen</strong>. Som en <span class="os">analyzer</span> som gjør «Applikasjonene» og «applikasjon» til samme token.</div>
 </div>
 
+<OsNote term="analyzer">Kjøres likt ved indeksering og søk, ellers matcher ingenting. Det samme gjelder normaliseringen av melodien.</OsNote>
+
 <!--
 Koble tilbake til akkord-sliden: der regnet vi akkorden relativt til grunntonen. Her trekker vi fra snittet. Samme idé: relativt, ikke absolutt.
 -->
 
 ---
-
-## clicks: 1
+clicks: 1
+---
 
 # Steg 3: vinduer = <span class="accent">passages</span>
 
@@ -231,6 +236,8 @@ Koble tilbake til akkord-sliden: der regnet vi akkorden relativt til grunntonen.
 <div v-if="$clicks === 0" class="sub">5 s vinduer med 2 s hopp. Starter du å spille midt i sangen, treffer du fortsatt et vindu.</div>
 <div v-else class="sub">Hvert vindu er en <span class="os">passage</span> med referanse til sangen sin. Vi søker i vinduer, men returnerer sanger. Som avsnitt → Wikipedia-artikkel.</div>
 </div>
+
+<OsNote v-if="$clicks === 0" term="chunking">Som å dele lange dokumenter i overlappende biter før embedding. Overlappen gjør at en frase ikke blir kuttet i to.</OsNote>
 
 <!--
 Bygg på Joakim: dette er passage retrieval. Sangen er forelder-dokumentet, vinduene er passages.
@@ -249,40 +256,54 @@ PUT melodier
 {
   "settings": { "index.knn": true },
   "mappings": { "properties": {
-    "sang":  { "type": "keyword" },
-    "start": { "type": "float" },
-    "kontur": {
-      "type": "knn_vector",
-      "dimension": 64,
-      "space_type": "l2"
-    }
+    "sang":   { "type": "keyword" },
+    "start":  { "type": "float" },
+    "kontur": { "type": "knn_vector",
+                "dimension": 64, "space_type": "l2" }
   }}
 }
 ```
+
+<v-click>
+
+```json
+GET melodier/_search
+{
+  "size": 20,
+  "query": { "knn": { "kontur": {
+    "vector": [-2.1, -2.1, 0.4, …], "k": 20
+  }}},
+  "_source": ["sang", "start"]
+}
+```
+
+</v-click>
 
 </div>
 <div class="small">
 <v-clicks>
 
+- Samme som **embeddings-søket** vi kjenner, bare at vektoren lager vi selv (64 tall), ikke en modell
 - Én **passage per vindu**, med `sang` som forelder
 - **`l2`**, ikke `cosinesimil`: et hopp på +2 og et hopp på +7 peker i samme _retning_, men er ulike melodier
-- **Overfetching:** vi skal vise 5, men henter `k: 20`
+- **Overfetching:** vi skal vise 3 sanger, men henter `k: 20` vinduer. Samme sang kan treffe mange ganger, appen slår dem sammen.
 - Hvorfor? kNN er rask, men grov. Tempo og start stemmer sjelden helt.
 
 </v-clicks>
 </div>
 </div>
 
+
 <!--
 Vi brukte cosinesimil på Wikipedia-embeddings fordi lengden på vektoren ikke betyr noe der.
 Her betyr størrelsen på hoppene alt.
-Demoen kjører alt i nettleseren med eksakt kNN. Den bruker hopp på 1 s og fem vinduslengder (3,5–7 s), så rask og treg spilling finner et vindu som passer.
+Demoen kjører alt i nettleseren med eksakt kNN. Den bruker hopp på 1 s og sju vinduslengder (3,5–10 s), så rask og treg spilling finner et vindu som passer.
 I produksjon: OpenSearch eller FAISS med HNSW.
 -->
 
 ---
-
-## clicks: 2
+clicks: 2
+---
 
 # Steg 5: <span class="accent">DTW</span> fikser tempoet
 
@@ -293,6 +314,7 @@ I produksjon: OpenSearch eller FAISS med HNSW.
 <span v-else-if="$clicks === 1">Lys rute = like tall. Hver rute sammenligner ett punkt i det du spilte med ett punkt i sangen.</span>
 <span v-else>Billigste vei gjennom matrisen. Den kan starte hvor som helst i sangen (<em>subsequence</em> DTW).</span>
 </div>
+
 
 <!--
 Dynamic time warping: strekk og klem tiden så kurvene passer best mulig. Samme type algoritme som edit distance (Levenshtein), bare med tall i stedet for bokstaver.
@@ -311,15 +333,17 @@ librosa.sequence.dtw(..., subseq=True) gjør dette i én linje.
 <div class="arrow">→</div>
 <div class="box2 app"><div class="t">Appen</div><div class="s">DTW på 20 treff<br/>treg og presis</div></div>
 <div class="arrow">→</div>
-<div class="box2"><div class="t">Topp 5</div><div class="s">+ hvor i sangen</div></div>
+<div class="box2"><div class="t">Topp 3</div><div class="s">+ hvor i sangen</div></div>
 </div>
 
 <v-clicks>
 
 <div class="text-center mt-12 text-lg">Billig søk på <strong>alt</strong>, dyr sammenligning på <strong>litt</strong>.</div>
-<div class="text-center sub mt-2">Jo mer avansert søket blir, desto mer flytter vi ut av søkemotoren og inn i appen. DTW finnes ikke i OpenSearch, så vi gjør det selv.</div>
+<div class="text-center sub mt-2">Jo mer avansert søket blir, desto mer flytter vi ut av søkemotoren og inn i appen.</div>
 
 </v-clicks>
+
+<OsNote term="rescore">Kjører en dyrere query på topp-N (<code>window_size</code>). Samme mønster, men DTW finnes ikke der, så vi gjør det i appen.</OsNote>
 
 <!--
 Joakims poeng fra del 1: søkemotoren gjør grunnleggende indeksering og kNN, resten bygger vi utenpå.
@@ -332,37 +356,33 @@ Joakims poeng fra del 1: søkemotoren gjør grunnleggende indeksering og kNN, re
 <SearchDemo class="mt-1" />
 
 <!--
-Korpus: 8 folkemelodier (Fader Jakob, Lisa, Ode til gleden, Hurra for deg, Bjelleklang …).
-1. Trykk «Lisa» og «Søk». kNN gir feil sang på #1, DTW flytter riktig sang opp.
-2. Live: velg lydkortet oppe til høyre, trykk «Ta opp» og spill melodien på gitaren. Én tone om gangen, demp strengen før neste tone. 5 s.
+Korpus: 4 sanger (Fader Jakob, Blinke lille stjerne, What a Wonderful World, Let It Be).
+1. Trykk «Fader Jakob» og «Søk». kNN gir What a Wonderful World på #1, DTW flytter Fader Jakob opp.
+2. Lydklipp: velg «Lydklipp» oppe til høyre og trykk «Søk med lydklipp». Hele klippet analyseres med en gang (maks 10 s fra første tone).
+   Live: velg «Mikrofon», trykk «Lytt 5 s» og spill melodien på gitaren. Én tone om gangen, demp strengen før neste tone.
 3. Backup: spill melodien på MIDI-keyboardet mens den tar opp. Da er tallene eksakte.
 Klikk et treff for å høre utdraget den mener du spilte.
 -->
 
 ---
 
-# Slik gjør <span class="accent">produktene</span> det
+# Tre måter å søke i <span class="accent">lyd</span>
 
 <div class="cards mt-6">
-<v-click>
 <div class="card">
 <div class="k">Shazam</div>
 <h3>Fingerprinting</h3>
 <p>«Hvilket <strong>opptak</strong> er dette?»</p>
-<p class="sub">Du holder telefonen mot høyttaleren. Samme lydfil, bare med støy rundt.</p>
+<p class="sub">Samme lydfil, bare med støy rundt.</p>
 <div class="os">≈ invertert indeks + term-søk</div>
 </div>
-</v-click>
-<v-click>
 <div class="card hot">
-<div class="k">SoundHound</div>
-<h3>Query-by-humming</h3>
+<div class="k">SoundHound · det vi bygde</div>
+<h3>Melodisøk</h3>
 <p>«Hvilken <strong>sang</strong> går sånn her?»</p>
-<p class="sub">Du spiller eller synger selv. Ingen lydfil å sammenligne med.</p>
+<p class="sub">Du spiller selv. Ingen lydfil å sammenligne med.</p>
 <div class="os">≈ knn_vector + rescore</div>
 </div>
-</v-click>
-<v-click>
 <div class="card">
 <div class="k">CLAP o.l.</div>
 <h3>Semantisk</h3>
@@ -370,31 +390,27 @@ Klikk et treff for å høre utdraget den mener du spilte.
 <p class="sub">Tekst og lyd i samme vektorrom.</p>
 <div class="os">≈ CLIP fra del 1, bare med lyd</div>
 </div>
-</v-click>
 </div>
 
 <v-click>
-<div class="sub text-center mt-8">Det vi nettopp bygde er <strong class="accent">query-by-humming</strong>: en liten SoundHound-klone.</div>
+<div class="text-center mt-8 text-lg">Lyd → <strong>tall</strong> → <strong>vinduer</strong> → <strong class="accent">kNN</strong> → <strong>rerank i appen</strong></div>
+<div class="sub text-center mt-2">Det vanskelige er å gjøre lyd om til tall. Resten er søk dere allerede kan.</div>
 </v-click>
 
----
-
-# Kobling til det vi kan fra før
-
-<table class="ez mt-6"><tbody>
-<tr><th>OpenSearch</th><th>Lydsøk</th></tr>
-<tr><td class="os">Analyzer (lowercase, stemming)</td><td>Trekk fra snitt: samme melodi uansett høyde</td></tr>
-<tr><td class="os">Invertert indeks + term</td><td>Shazam-hasher</td></tr>
-<tr><td class="os">Ingest pipeline (text_embedding)</td><td>Lyd → tall → vinduer → vektor</td></tr>
-<tr><td class="os">Passage retrieval (avsnitt → artikkel)</td><td>Overlappende vinduer → sang</td></tr>
-<tr><td class="os">knn_vector + HNSW</td><td>64 tall per vindu, l2</td></tr>
-<tr><td class="os">rescore / rerank</td><td>Subsequence DTW i appen</td></tr>
-<tr><td class="os">CLIP (tekst ↔ bilde)</td><td>CLAP (tekst ↔ lyd)</td></tr>
-</tbody></table>
+<!--
+Kobling til OpenSearch, hvis noen spør:
+- Analyzer (lowercase, stemming) ≈ trekk fra snitt: samme melodi uansett toneart
+- Invertert indeks + term ≈ Shazam-hasher
+- Ingest pipeline (text_embedding) ≈ lyd → tall → vinduer → vektor
+- Passage retrieval (avsnitt → artikkel) ≈ overlappende vinduer → sang
+- knn_vector + HNSW ≈ 64 tall per vindu, l2
+- rescore / rerank ≈ subsequence DTW i appen
+- CLIP (tekst ↔ bilde) ≈ CLAP (tekst ↔ lyd)
+-->
 
 ---
-
-## layout: center
+layout: center
+---
 
 <div class="text-center">
 

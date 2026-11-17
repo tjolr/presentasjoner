@@ -13,12 +13,12 @@ const props = withDefaults(defineProps<{ step?: number }>(), { step: 0 })
 
 const W = 860
 const H = 170
-const song = songById('lisa')
+const song = songById('blinke')
 const len = songLength(song)
 const sc = songContour(song)
-// Utdraget «C D E F G G G» starter på slag 8
-const qStart = 8 * (60 / song.bpm)
-const hum = fakeHum('lisa', 8, 8, 5, 1, 3)
+// Utdraget «G G F F E E D» starter på slag 16
+const qStart = 16 * (60 / song.bpm)
+const hum = fakeHum('blinke', 16, 8, 5, 1, 3)
 const q = hum.contour
 
 const x = (t: number) => (t / len) * W

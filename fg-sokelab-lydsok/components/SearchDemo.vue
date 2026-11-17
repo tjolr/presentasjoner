@@ -1,14 +1,16 @@
 <script setup lang="ts">
-// Hele søket: query (eksempel, mikrofon eller MIDI) → kNN topp 20 → DTW-rerank topp 5.
+// Hele søket: query (eksempel, lydklipp, mikrofon eller MIDI) → kNN topp 20 → DTW-rerank topp 3.
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { getCtx, isShown, playTone } from '../lib/audio'
+import { ftom, getCtx, isShown, playTone } from '../lib/audio'
 import { onMidi } from '../lib/midi'
-import { startTracker } from '../lib/pitch'
+import { startTracker, yin } from '../lib/pitch'
 import { HOP, type Ranked, fakeHum, fill, knn, queryVector, rerank } from '../lib/qbh'
 import { songById, timed } from '../lib/songs'
-import { playClip, selectedClip, source } from '../lib/recording'
+import { playClip, selectedClip, source, stopClip } from '../lib/recording'
 
 const REC_SEC = 5
+/** Lydklipp: maks så mange sekunder melodi, regnet fra første tone */
+const CLIP_SEC = 10
 const root = ref<HTMLElement>()
 const query = ref<Float32Array | null>(null)
 const recording = ref(0)
@@ -18,9 +20,9 @@ const stage = ref(0)
 const ms = ref({ knn: 0, dtw: 0 })
 
 const examples = [
-  { label: 'Lisa (midten, +5, surt)', id: 'lisa', from: 8, beats: 8, tr: 5, st: 1.1 },
-  { label: 'Ode (saktere, −3)', id: 'ode', from: 4, beats: 9, tr: -3, st: 1.3 },
-  { label: 'Fader Jakob (raskere)', id: 'fader', from: 16, beats: 8, tr: 2, st: 0.85 },
+  { label: 'Fader Jakob (midten, +5, surt)', id: 'fader', from: 6, beats: 8, tr: 5, st: 1.2 },
+  { label: 'Let It Be (saktere, −3)', id: 'letitbe', from: 0, beats: 9, tr: -3, st: 1.3 },
+  { label: 'Blinke (midten, +5)', id: 'blinke', from: 16, beats: 8, tr: 5, st: 1.1 },
 ]
 
 function useExample(e: (typeof examples)[number]) {
@@ -37,14 +39,42 @@ let stopTrack: (() => void) | undefined
 let offMidi: (() => void) | undefined
 let timer: ReturnType<typeof setInterval> | undefined
 
+/** Lydklipp: kjør pitch-sporingen på hele klippet med en gang (ingen venting), trim stillhet, maks CLIP_SEC. */
+let clipStop: ReturnType<typeof setTimeout> | undefined
+function searchClip() {
+  const b = selectedClip.value?.buf
+  if (!b) return
+  reset()
+  const x = b.getChannelData(0)
+  const sr = b.sampleRate
+  const hop = Math.round(HOP * sr)
+  const out: number[] = []
+  let first = -1
+  for (let i = 0; i + 2048 <= x.length; i += hop) {
+    const f = yin(x.subarray(i, i + 2048), sr)
+    if (first < 0) {
+      if (f === null) continue
+      first = i
+    }
+    out.push(f ? ftom(f) : NaN)
+    if (out.length >= CLIP_SEC / HOP) break
+  }
+  // Stillhet på slutten kuttes av fill() i søket
+  query.value = Float32Array.from(out)
+  const from = first / sr
+  playClip(from)
+  clearTimeout(clipStop)
+  clipStop = setTimeout(stopClip, out.length * HOP * 1000)
+  search()
+}
+
 function record() {
   getCtx()
+  if (source.value === 'clip' && selectedClip.value) return searchClip()
   buf = []
   reset()
   query.value = new Float32Array()
   recording.value = REC_SEC
-  // Kilde = lydklipp: spill klippet mens vi lytter
-  if (source.value === 'clip' && selectedClip.value) playClip()
   const t0 = performance.now()
   timer = setInterval(() => {
     const left = REC_SEC - (performance.now() - t0) / 1000
@@ -69,7 +99,7 @@ function search() {
   const t0 = performance.now()
   hits.value = knn(queryVector(query.value), 20)
   const t1 = performance.now()
-  ranked.value = rerank(query.value, hits.value).slice(0, 5)
+  ranked.value = rerank(query.value, hits.value).slice(0, 3)
   ms.value = { knn: t1 - t0, dtw: performance.now() - t1 }
   stage.value = 1
   setTimeout(() => (stage.value = 2), 900)
@@ -117,6 +147,7 @@ onBeforeUnmount(() => {
   stopTrack?.()
   offMidi?.()
   clearInterval(timer)
+  clearTimeout(clipStop)
 })
 </script>
 
@@ -124,7 +155,7 @@ onBeforeUnmount(() => {
   <div ref="root" class="sd">
     <div class="btns">
       <button class="pill rec" :class="{ on: recording }" @click="record">
-        {{ recording ? `● Tar opp … ${recording}` : `● Lytt 5 s (${source === 'clip' && selectedClip ? 'lydklipp' : 'mikrofon'} / MIDI)` }}
+        {{ recording ? `● Tar opp … ${recording}` : source === 'clip' && selectedClip ? `▶ Søk med lydklipp (maks ${CLIP_SEC} s)` : '● Lytt 5 s (mikrofon / MIDI)' }}
       </button>
       <span class="sub">eller</span>
       <button v-for="e in examples" :key="e.label" class="pill b" @click="useExample(e)">▶ {{ e.label }}</button>
@@ -154,7 +185,7 @@ onBeforeUnmount(() => {
       </div>
       <div class="arrow" :class="{ on: stage >= 2 }">→</div>
       <div class="col">
-        <div class="h"><span class="n">2</span> DTW-rerank: topp 5 <span class="sub">({{ ms.dtw.toFixed(0) }} ms)</span></div>
+        <div class="h"><span class="n">2</span> DTW-rerank: topp 3 <span class="sub">({{ ms.dtw.toFixed(0) }} ms)</span></div>
         <div v-if="stage >= 2" class="list">
           <button v-for="(r, i) in ranked" :key="r.song" class="res" :class="{ first: i === 0 }" :style="{ '--d': i * 0.1 + 's' }" @click="playAt(r)">
             <span class="rank">{{ i + 1 }}</span>

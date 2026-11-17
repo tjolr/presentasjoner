@@ -1,4 +1,4 @@
-// Query-by-humming: kontur → vinduer → vektorer → kNN → subsequence DTW.
+// Melodisøk (query-by-humming, her med gitar/MIDI): kontur → vinduer → vektorer → kNN → subsequence DTW.
 // Ren TypeScript, ingen avhengigheter. Samme idé som i Python med librosa + FAISS/OpenSearch.
 import { SONGS, type Song, songById, timed } from './songs'
 
@@ -6,8 +6,8 @@ import { SONGS, type Song, songById, timed } from './songs'
 export const HOP = 0.03
 export const WIN = 5
 export const WIN_HOP = 1
-/** Vi indekserer også kortere og lengre vinduer, så et raskt eller sakte nynn treffer et vindu med omtrent like mange toner */
-export const WIN_SCALES = [3.5, 4.25, 5, 6, 7]
+/** Vi indekserer også kortere og lengre vinduer, så rask eller treg spilling (og lydklipp på opptil 10 s) treffer et vindu med omtrent like mange toner */
+export const WIN_SCALES = [3.5, 4.25, 5, 6, 7, 8.5, 10]
 /** Ekstra kost for å strekke/klemme tiden (ikke-diagonale steg i DTW) */
 export const STEP_PENALTY = 0.25
 export const DIMS = 64

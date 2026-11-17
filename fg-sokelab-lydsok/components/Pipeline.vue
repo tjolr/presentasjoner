@@ -9,7 +9,7 @@ const steps = [
   { t: 'Vinduer', s: '5 s, hopp 2 s', os: 'passages' },
   { t: 'Vektor', s: '64 tall', os: 'knn_vector' },
   { t: 'kNN', s: 'hent 20', os: 'HNSW, k: 20' },
-  { t: 'DTW', s: 'rerank til 5', os: 'rescore' },
+  { t: 'DTW', s: 'rerank til 3', os: 'rescore' },
 ]
 </script>
 

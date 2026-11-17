@@ -88,7 +88,8 @@ onBeforeUnmount(() => {
     <div class="top">
       <div class="src">
         <button class="pill" @click="playSong('fader', 'pluck')">Gitar: Fader Jakob</button>
-        <button class="pill" @click="playSong('lisa', 'pluck')">Gitar: Lisa gikk til skolen</button>
+        <button class="pill" @click="playSong('letitbe', 'pluck', 40)">Gitar: Let It Be</button>
+        <button class="pill" @click="playSong('wonderful', 'pluck', 40)">Gitar: What a Wonderful World</button>
         <button class="pill" @click="pts.length = 0">Tøm</button>
       </div>
       <div class="now">
