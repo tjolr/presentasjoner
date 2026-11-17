@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Live pitch-kontur: fra synth, mikrofon (gitar/nynning) eller MIDI-keyboard.
+// Live pitch-kontur: fra synth, mikrofon (gitar) eller MIDI-keyboard.
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { getCtx, isShown, noteName, playTone, pluck } from '../lib/audio'
 import { onMidi } from '../lib/midi'
@@ -88,7 +88,7 @@ onBeforeUnmount(() => {
     <div class="top">
       <div class="src">
         <button class="pill" @click="playSong('fader', 'pluck')">Gitar: Fader Jakob</button>
-        <button class="pill" @click="playSong('lisa', 'hum')">Nynning: Lisa gikk til skolen</button>
+        <button class="pill" @click="playSong('lisa', 'pluck')">Gitar: Lisa gikk til skolen</button>
         <button class="pill" @click="pts.length = 0">Tøm</button>
       </div>
       <div class="now">

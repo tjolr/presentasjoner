@@ -1,6 +1,6 @@
 // Lydklipp: de 3 siste opptakene/filene huskes (IndexedDB). Velgeren oppe til høyre
 // bestemmer om analysene får lyd fra mikrofonen (live) eller fra et klipp.
-import { computed, ref, shallowRef } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 import { disableMic, enableMic, getCtx, getMaster, getMicStream, micOn } from './audio'
 
 const MAX = 3
@@ -17,6 +17,16 @@ interface Stored {
   created: number
   type: string
   data: ArrayBuffer
+}
+
+// Valgt klipp og kilde huskes i localStorage, så en refresh ikke nullstiller velgeren.
+const LS = 'lydsok:valg'
+function readPick(): { id?: string; source?: 'mic' | 'clip' } {
+  try {
+    return JSON.parse(localStorage.getItem(LS) ?? '{}')
+  } catch {
+    return {}
+  }
 }
 
 /** Nyeste først */
@@ -72,9 +82,22 @@ void (async () => {
     }
     // Klipp lagt til mens vi lastet går foran
     clips.value = [...clips.value, ...out].slice(0, MAX)
-    if (!selectedId.value && clips.value[0]) selectedId.value = clips.value[0].id
+    if (!selectedId.value) {
+      const pick = readPick()
+      const hit = clips.value.find((c) => c.id === pick.id) ?? clips.value[0]
+      if (hit) {
+        selectedId.value = hit.id
+        if (pick.source === 'clip') source.value = 'clip'
+      }
+    }
   } catch {}
 })()
+
+watch([selectedId, source], ([id, src]) => {
+  try {
+    localStorage.setItem(LS, JSON.stringify({ id, source: src }))
+  } catch {}
+})
 
 async function addClip(name: string, data: ArrayBuffer, type: string) {
   const buf = await decode(data)

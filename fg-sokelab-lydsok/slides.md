@@ -8,7 +8,7 @@ drawings:
 fonts:
   sans: Geist
   mono: JetBrains Mono
-  weights: '400,500,600,700'
+  weights: "400,500,600,700"
   provider: google
 layout: default
 ---
@@ -42,11 +42,12 @@ Klikk i bølgen for å spille fra et punkt.
 De 3 siste klippene huskes (også etter omlasting). På analyseslidene: velg «Lydklipp» oppe til høyre og ▶ for å spille det gjennom analysen, eller «Mikrofon» for live.
 Ta gjerne også opp et enklere klipp: noen få akkorder (G – C – D – Em), så Fader Jakob med enkelttoner.
 -->
+
 ---
 
 # Lyd: 48 000 tall i <span class="accent">sekundet</span>
 
-<div class="sub text-center -mt-2">Hvert tall: hvor langt høyttaleren er dyttet ut akkurat da.<br/>Raske svingninger = lys tone, store utslag = høy lyd.</div>
+<div class="sub text-center -mt-2">Hvert tall: hvor langt høyttaleren er dyttet ut (+) eller trukket inn (−) akkurat da.<br/>Raske svingninger = lys tone, store utslag = høy lyd.</div>
 
 <v-click>
 <div class="text-center mt-3 text-xl">Kan vi gjøre disse tallene om til noe <strong class="accent">nyttig</strong>?</div>
@@ -60,6 +61,20 @@ Gitarstreng: samme tone, men mange frekvenser oppå hverandre (overtoner). Det e
 Akkord: flere toner samtidig, bølgen blir rotete.
 Gitar via mikrofon/lydkort: skru på «Mikrofon». Eller «Lydklipp» + ▶ oppe til høyre: spiller klippet fra forrige slide.
 Poeng: bølgen sier ingenting direkte om hvilke toner eller akkorder det er. Det må vi regne ut.
+-->
+
+---
+
+# Hvilken <span class="accent">tone</span> spilles?
+
+<PitchTrace class="mt-2" />
+
+<!--
+YIN-algoritmen: sammenlign lydbølgen med seg selv, forskjøvet litt. Når den ligner mest, har vi funnet lengden på én svingning, og dermed frekvensen.
+Frekvens → MIDI-tall: 69 + 12·log2(f / 440).
+Live: skru på mikrofon og spill én tone om gangen. Flere toner samtidig (akkorder) forvirrer den. Da trenger vi akkord-histogrammet på neste slide.
+MIDI-keyboard: oransje, eksakt. Ingen gjetting.
+I Python: librosa.pyin eller CREPE. Basic Pitch (Spotify) gjør lyd → MIDI-fil direkte.
 -->
 
 ---
@@ -81,27 +96,21 @@ Fungerer på gitar alene. På en ferdig miks (sang, bass, trommer) blir histogra
 
 ---
 
-# Hvilken <span class="accent">tone</span> spilles?
-
-<PitchTrace class="mt-2" />
-
-<!--
-YIN-algoritmen: sammenlign lydbølgen med seg selv, forskjøvet litt. Når den ligner mest, har vi funnet lengden på én svingning, og dermed frekvensen.
-Frekvens → MIDI-tall: 69 + 12·log2(f / 440).
-Live: skru på mikrofon og spill én tone om gangen. Flere toner samtidig (akkorder) forvirrer den. Da trenger vi akkord-histogrammet fra forrige slide.
-MIDI-keyboard: oransje, eksakt. Ingen gjetting.
-I Python: librosa.pyin eller CREPE. Basic Pitch (Spotify) gjør lyd → MIDI-fil direkte.
--->
-
----
-
 # Alle tonene på én gang: <span class="accent">spektrogram</span>
 
-<Scope view="spec" :height="270" class="mt-2" />
+<Scope view="spec" :height="160" class="mt-1" />
 
 <div class="sub text-center mt-3">Del lyden i biter på noen millisekunder. For hver bit: hvilke frekvenser er med? (Fourier-transform.)</div>
 
+<v-click>
+<FourierBit class="mt-2" />
+</v-click>
+
 <!--
+Figuren: én gitarstreng (G) = grunntone 196 Hz + overtoner 392, 588, 784, 980 Hz (2×, 3×, 4×, 5×). Fourier plukker dem fra hverandre, og hver blir en strek i spektrogrammet. Derfor ser gitar ut som én tone + svakere streker over. En akkord = flere slike sett oppå hverandre.
+Fourier: hver bit (8192 tall ≈ 0,17 s ved 48 kHz) skrives som en sum av sinuser. |X_k| = hvor mye av frekvens k·48000/8192 ≈ k·5,9 Hz. FFT gjør det raskt: N log N.
+Mange biter etter hverandre = korttids-Fourier (STFT). Hver bit glattes i kantene med et vindu (Blackman i nettleseren), ellers lekker energi til nabofrekvenser.
+Avveining: lengre bit = skarpere frekvens, men utydeligere tid (usikkerhetsprinsippet).
 X: tid. Y: frekvens. Lys = sterk.
 Sinus = én strek. Gitar = én tone + flere svakere streker over (overtoner). Akkord = mange streker.
 Dette «bildet» er det nesten alle lydmodeller jobber med.
@@ -109,13 +118,13 @@ Dette «bildet» er det nesten alle lydmodeller jobber med.
 
 ---
 
-# Fra analyse til <span class="accent">søk</span>
+# Fra lydbølger til <span class="accent">søk</span>
 
-<div class="text-center text-xl mt-4">Mål: nynn en bit av en sang, og finn hvilken sang det er</div>
+<div class="text-center text-xl mt-4">Mål: spill en bit av en sang, og finn hvilken sang det er</div>
 
 <div class="grid grid-cols-3 gap-4 mt-8">
 <v-click>
-<div class="card"><div class="k">Høyde</div><h3>Alle tall +5</h3><p class="sub">Du nynner i den høyden som passer stemmen din, ikke den på plata.</p></div>
+<div class="card"><div class="k">Høyde</div><h3>Alle tall +5</h3><p class="sub">Du spiller i en annen toneart enn plata.</p></div>
 </v-click>
 <v-click>
 <div class="card"><div class="k">Tempo</div><h3>Feil fart</h3><p class="sub">For sakte, for fort, og ujevnt underveis.</p></div>
@@ -142,8 +151,8 @@ clicks: 8
 </div>
 
 ---
-clicks: 2
----
+
+## clicks: 2
 
 # Steg 1: lyd → <span class="accent">tall</span>
 
@@ -175,7 +184,7 @@ clicks: 2
 Tonen vi fant på «Hvilken tone spilles?» blir et tall, hvert 30. ms.
 Dette er all musikkteorien vi trenger i dag.
 Poenget: MIDI-tall er en lineær skala. Frekvens er eksponentiell (×2 per 12 steg), men det trenger vi ikke tenke på.
-«+5 på alle» = det som skjer når to personer nynner samme sang i ulik høyde.
+«+5 på alle» = det som skjer når to personer spiller samme sang i ulik toneart.
 -->
 
 ---
@@ -192,16 +201,17 @@ MIDI er ikke lyd, det er noter som data: «trykk ned tangent 60, slipp tangent 6
 Skru på MIDI oppe til høyre og spill på keyboardet: hendelsene dukker opp i oransje.
 Sangkorpuset vårt er også i praksis MIDI: lister med tall.
 -->
+
 ---
-clicks: 1
----
+
+## clicks: 1
 
 # Steg 2: høyden spiller ingen <span class="accent">rolle</span>
 
 <Contours :step="$clicks" class="mt-2" />
 
 <div class="text-center mt-4 h-14">
-<div v-if="$clicks === 0" class="sub">Samme melodi, men nynnet høyere: alle tallene er +5.</div>
+<div v-if="$clicks === 0" class="sub">Samme melodi, men spilt høyere: alle tallene er +5.</div>
 <div v-else>Trekk fra gjennomsnittet: <strong class="accent">bare formen er igjen</strong>. Som en <span class="os">analyzer</span> som gjør «Applikasjonene» og «applikasjon» til samme token.</div>
 </div>
 
@@ -210,15 +220,15 @@ Koble tilbake til akkord-sliden: der regnet vi akkorden relativt til grunntonen.
 -->
 
 ---
-clicks: 1
----
+
+## clicks: 1
 
 # Steg 3: vinduer = <span class="accent">passages</span>
 
 <Contours :step="2 + $clicks" class="mt-2" />
 
 <div class="text-center mt-2">
-<div v-if="$clicks === 0" class="sub">5 s vinduer med 2 s hopp. Starter du å nynne midt i sangen, treffer du fortsatt et vindu.</div>
+<div v-if="$clicks === 0" class="sub">5 s vinduer med 2 s hopp. Starter du å spille midt i sangen, treffer du fortsatt et vindu.</div>
 <div v-else class="sub">Hvert vindu er en <span class="os">passage</span> med referanse til sangen sin. Vi søker i vinduer, men returnerer sanger. Som avsnitt → Wikipedia-artikkel.</div>
 </div>
 
@@ -255,7 +265,7 @@ PUT melodier
 <v-clicks>
 
 - Én **passage per vindu**, med `sang` som forelder
-- **`l2`**, ikke `cosinesimil`: et hopp på +2 og et hopp på +7 peker i samme *retning*, men er ulike melodier
+- **`l2`**, ikke `cosinesimil`: et hopp på +2 og et hopp på +7 peker i samme _retning_, men er ulike melodier
 - **Overfetching:** vi skal vise 5, men henter `k: 20`
 - Hvorfor? kNN er rask, men grov. Tempo og start stemmer sjelden helt.
 
@@ -266,21 +276,21 @@ PUT melodier
 <!--
 Vi brukte cosinesimil på Wikipedia-embeddings fordi lengden på vektoren ikke betyr noe der.
 Her betyr størrelsen på hoppene alt.
-Demoen kjører alt i nettleseren med eksakt kNN. Den bruker hopp på 1 s og fem vinduslengder (3,5–7 s), så rask og treg nynning finner et vindu som passer.
+Demoen kjører alt i nettleseren med eksakt kNN. Den bruker hopp på 1 s og fem vinduslengder (3,5–7 s), så rask og treg spilling finner et vindu som passer.
 I produksjon: OpenSearch eller FAISS med HNSW.
 -->
 
 ---
-clicks: 2
----
+
+## clicks: 2
 
 # Steg 5: <span class="accent">DTW</span> fikser tempoet
 
 <DtwView :step="$clicks" class="mt-2" />
 
 <div class="text-center sub mt-2 h-8">
-<span v-if="$clicks === 0">Sangen langs toppen, nynningen nedover. Nynningen er 40 % saktere og startet høyere.</span>
-<span v-else-if="$clicks === 1">Lys rute = like tall. Hver rute sammenligner ett punkt i nynningen med ett punkt i sangen.</span>
+<span v-if="$clicks === 0">Sangen langs toppen, det du spilte nedover. Det er 40 % saktere og startet høyere.</span>
+<span v-else-if="$clicks === 1">Lys rute = like tall. Hver rute sammenligner ett punkt i det du spilte med ett punkt i sangen.</span>
 <span v-else>Billigste vei gjennom matrisen. Den kan starte hvor som helst i sangen (<em>subsequence</em> DTW).</span>
 </div>
 
@@ -326,7 +336,7 @@ Korpus: 8 folkemelodier (Fader Jakob, Lisa, Ode til gleden, Hurra for deg, Bjell
 1. Trykk «Lisa» og «Søk». kNN gir feil sang på #1, DTW flytter riktig sang opp.
 2. Live: velg lydkortet oppe til høyre, trykk «Ta opp» og spill melodien på gitaren. Én tone om gangen, demp strengen før neste tone. 5 s.
 3. Backup: spill melodien på MIDI-keyboardet mens den tar opp. Da er tallene eksakte.
-Klikk et treff for å høre utdraget den mener du nynnet.
+Klikk et treff for å høre utdraget den mener du spilte.
 -->
 
 ---
@@ -348,7 +358,7 @@ Klikk et treff for å høre utdraget den mener du nynnet.
 <div class="k">SoundHound</div>
 <h3>Query-by-humming</h3>
 <p>«Hvilken <strong>sang</strong> går sånn her?»</p>
-<p class="sub">Du nynner selv. Ingen lydfil å sammenligne med.</p>
+<p class="sub">Du spiller eller synger selv. Ingen lydfil å sammenligne med.</p>
 <div class="os">≈ knn_vector + rescore</div>
 </div>
 </v-click>
@@ -383,8 +393,8 @@ Klikk et treff for å høre utdraget den mener du nynnet.
 </tbody></table>
 
 ---
-layout: center
----
+
+## layout: center
 
 <div class="text-center">
 
@@ -445,7 +455,7 @@ Demucs: pip install demucs; demucs sang.mp3. Ca. et halvt minutt per låt på en
 
 <!--
 Wang 2003. Tåler støy, fordi bare de sterkeste punktene teller.
-Men nynner du, matcher ingenting: frekvensene er helt andre enn i originalopptaket.
+Men spiller du den selv, matcher ingenting: frekvensene er helt andre enn i originalopptaket.
 -->
 
 ---
@@ -454,7 +464,7 @@ Men nynner du, matcher ingenting: frekvensene er helt andre enn i originalopptak
 
 <table class="ez"><tbody>
 <tr><th></th><th></th><th>Verktøy</th></tr>
-<tr><td>Lyd → tall når det er én tone om gangen (nynning, plystring)</td><td class="lvl e">Enkelt</td><td>librosa.pyin, CREPE</td></tr>
+<tr><td>Lyd → tall når det er én tone om gangen (én gitarstreng, plystring)</td><td class="lvl e">Enkelt</td><td>librosa.pyin, CREPE</td></tr>
 <tr><td>MIDI som input eller som sangkorpus</td><td class="lvl e">Enkelt</td><td>mido, pretty_midi</td></tr>
 <tr><td>Vinduer, vektorer og kNN</td><td class="lvl e">Enkelt</td><td>numpy, FAISS, OpenSearch</td></tr>
 <tr><td>Rerank med subsequence DTW</td><td class="lvl e">Enkelt</td><td>librosa.sequence.dtw</td></tr>

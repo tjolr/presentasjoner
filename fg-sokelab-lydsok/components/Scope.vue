@@ -38,14 +38,6 @@ const sources = [
         if (nt.pitch) pluck(nt.pitch, t0 + nt.start, 0.45, nt.dur + 0.04)
     },
   },
-  {
-    label: 'Nynning',
-    play: () => {
-      const t0 = getCtx().currentTime + 0.05
-      for (const nt of timed(songById('lisa')).slice(0, 7))
-        if (nt.pitch) playTone(nt.pitch, t0 + nt.start, nt.dur * 0.95, 0.3, 'hum')
-    },
-  },
 ]
 
 function yFor(f: number, h: number) {

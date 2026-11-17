@@ -77,7 +77,7 @@ function playHum() {
   <div class="ct">
     <div class="btns">
       <button class="pill g" @click="playSong">▶ Sangen (MIDI)</button>
-      <button v-if="step < 2" class="pill b" @click="playHum">▶ Nynnet query (+5, litt surt)</button>
+      <button v-if="step < 2" class="pill b" @click="playHum">▶ Spilt query (+5, litt surt)</button>
     </div>
     <svg :width="W" :height="H" class="plot">
       <line v-if="normalized" x1="0" :x2="W" :y1="H / 2" :y2="H / 2" class="zero" />
