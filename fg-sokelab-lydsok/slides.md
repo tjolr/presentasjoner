@@ -209,12 +209,12 @@ Sangkorpuset vårt er også i praksis MIDI: lister med tall.
 clicks: 1
 ---
 
-# Steg 2: høyden spiller ingen <span class="accent">rolle</span>
+# Steg 2: tonearten spiller ingen <span class="accent">rolle</span>
 
 <Contours :step="$clicks" class="mt-2" />
 
 <div class="text-center mt-4 h-14">
-<div v-if="$clicks === 0" class="sub">Samme melodi, men spilt høyere: alle tallene er +5.</div>
+<div v-if="$clicks === 0" class="sub">Samme melodi i en annen toneart: hver tone er 5 halvtoner opp. Sprangene mellom tonene er like.</div>
 <div v-else>Trekk fra gjennomsnittet: <strong class="accent">bare formen er igjen</strong>. Som en <span class="os">analyzer</span> som gjør «Applikasjonene» og «applikasjon» til samme token.</div>
 </div>
 
@@ -228,25 +228,85 @@ Koble tilbake til akkord-sliden: der regnet vi akkorden relativt til grunntonen.
 clicks: 1
 ---
 
-# Steg 3: vinduer = <span class="accent">passages</span>
+# Steg 3: del opp i overlappende <span class="accent">vinduer</span>
 
 <Contours :step="2 + $clicks" class="mt-2" />
 
 <div class="text-center mt-2">
 <div v-if="$clicks === 0" class="sub">5 s vinduer med 2 s hopp. Starter du å spille midt i sangen, treffer du fortsatt et vindu.</div>
-<div v-else class="sub">Hvert vindu er en <span class="os">passage</span> med referanse til sangen sin. Vi søker i vinduer, men returnerer sanger. Som avsnitt → Wikipedia-artikkel.</div>
+<div v-else class="sub">Hvert vindu er en <span class="os">passage</span> med referanse til sangen sin. Vi søker i vinduer, men returnerer sanger. Som å dele et stort bilde i ruter: treffet er en rute, men du får hele bildet.</div>
 </div>
 
 <OsNote v-if="$clicks === 0" term="chunking">Som å dele lange dokumenter i overlappende biter før embedding. Overlappen gjør at en frase ikke blir kuttet i to.</OsNote>
 
 <!--
-Bygg på Joakim: dette er passage retrieval. Sangen er forelder-dokumentet, vinduene er passages.
+Bygg på Joachims bildesøk: for å finne en liten ting i et stort bilde deler man det i overlappende ruter, én embedding per rute. Her er det samme langs tid: sangen er forelder-dokumentet, vinduene er rutene (i OpenSearch: passages).
 Søk treffer vinduer, men resultatet er sanger (pluss hvor i sangen).
 -->
 
 ---
 
-# Steg 4: <span class="accent">vektorsøk</span>, som før
+# Steg 4: finn de <span class="accent">nærmeste</span> vinduene
+
+<div class="sub text-center mt-2">Vi har formen på melodien, delt i vinduer. Nå skal vi søke i dem, akkurat som med embeddings.</div>
+
+<div class="flow mt-12">
+<div class="box2"><div class="t">Hvert vindu</div><div class="s">fra steg 3</div></div>
+<div class="arrow">→</div>
+<div class="box2"><div class="t">64 tall</div><div class="s">en vektor</div></div>
+<div class="arrow">→</div>
+<div class="box2 os"><div class="t">OpenSearch</div><div class="s">knn_vector</div></div>
+<div class="arrow">←</div>
+<div class="box2"><div class="t">Du spiller</div><div class="s">også 64 tall</div></div>
+</div>
+
+<v-clicks>
+
+<div class="text-center mt-12 text-lg">Lik melodi = tallene ligger <strong>nær hverandre</strong>.</div>
+<div class="text-center sub mt-2">Fire spørsmål: hvorfor 64 tall? Hvordan ser indeksen ut? Hva betyr «nær»? Og hvordan blir vinduer til sanger?</div>
+
+</v-clicks>
+
+<!--
+Veikart for de neste fire slidene: vektoren, indeksen, avstand (l2) vs cosinus, overfetching.
+Ingen modell her: vektoren lager vi selv fra konturen.
+-->
+
+---
+clicks: 2
+---
+
+# Steg 4: ett vindu = <span class="accent">64 tall</span>
+
+<VecExample :step="$clicks" class="mt-4" />
+
+<div class="grid grid-cols-3 gap-6 mt-6 small">
+<div v-click="1">
+
+**Alle må ha like mange tall.** Vinduene er 3,5–10 s, altså 117–333 målinger. Vi krymper eller strekker alle til 64.
+
+</div>
+<div v-click="2">
+
+**64 er et valg, ikke en regel.** Hver tone får 5–8 punkter. Færre tall mister korte toner, flere gir tregere søk uten mer informasjon.
+
+</div>
+<div v-click="2">
+
+**64 er lite.** Tekst-embeddings har 384–1536 tall. Færre tall = mindre indeks og raskere søk.
+
+</div>
+</div>
+
+<!--
+Bonus med å strekke alt til 64: spiller du dobbelt så sakte, ligner ditt 10 s-vindu på sangens 5 s-vindu etter krymping. Derfor indekserer vi flere vinduslengder.
+Vektoren lager vi selv, ingen modell. Det er hele embeddingen.
+64 er en innstilling man prøver seg fram med, som vindusstørrelse og hopp. Med embeddings bestemmer modellen antallet (384, 1536 …); her bestemmer vi selv. Toerpotens er bare vane.
+-->
+
+---
+
+# Steg 4: <span class="accent">indeksen</span>
 
 <div class="grid grid-cols-2 gap-8 mt-6">
 <div>
@@ -267,13 +327,11 @@ PUT melodier
 <v-click>
 
 ```json
-GET melodier/_search
+POST melodier/_doc
 {
-  "size": 20,
-  "query": { "knn": { "kontur": {
-    "vector": [-2.1, -2.1, 0.4, …], "k": 20
-  }}},
-  "_source": ["sang", "start"]
+  "sang": "blinke",
+  "start": 4,
+  "kontur": [3.2, 3.2, 3.2, …, 2.5, 1.2, …]
 }
 ```
 
@@ -283,22 +341,78 @@ GET melodier/_search
 <div class="small">
 <v-clicks>
 
-- Samme som **embeddings-søket** vi kjenner, bare at vektoren lager vi selv (64 tall), ikke en modell
-- Én **passage per vindu**, med `sang` som forelder
-- **`l2`**, ikke `cosinesimil`: et hopp på +2 og et hopp på +7 peker i samme _retning_, men er ulike melodier
-- **Overfetching:** vi skal vise 3 sanger, men henter `k: 20` vinduer. Samme sang kan treffe mange ganger, appen slår dem sammen.
-- Hvorfor? kNN er rask, men grov. Tempo og start stemmer sjelden helt.
+- Samme som **embeddings-søket** vi kjenner, bare at vektoren lager vi selv, ikke en modell
+- **`dimension: 64`**: de 64 tallene fra forrige slide
+- **Ett dokument per vindu**, med `sang` og `start`. Sangen er forelderen, vinduet er en passage.
+- **`space_type: l2`**: avstand, ikke vinkel. Neste slide.
 
 </v-clicks>
 </div>
 </div>
 
+<!--
+Fire sanger gir noen hundre dokumenter: hopp på 1 s og sju vinduslengder (3,5–10 s).
+I produksjon: OpenSearch eller FAISS med HNSW.
+-->
+
+---
+clicks: 3
+---
+
+# Hvorfor avstand (`l2`) og ikke <span class="accent">cosinus?</span>
+
+<VecCompare :step="$clicks" class="mt-8" />
+
+<div class="text-center sub mt-6 h-8">
+<span v-if="$clicks === 0">Tre sanger på to toner hver. Du spiller C → G, litt surt. Hvilken sang er det?</span>
+<span v-else-if="$clicks === 1">Trekk fra snittet (steg 2). To tall = en pil. Med 64 tall er det det samme, bare med 64 akser.</span>
+<span v-else-if="$clicks === 2"><span class="os">cosinesimil</span> ser bare <em>retningen</em>. Lite steg opp og stort sprang opp blir like: uavgjort mellom A og B.</span>
+<span v-else>Avstand (<span class="os">l2</span>) måler hvor langt det er mellom pilspissene. Størrelsen på spranget teller: A vinner.</span>
+</div>
 
 <!--
-Vi brukte cosinesimil på Wikipedia-embeddings fordi lengden på vektoren ikke betyr noe der.
-Her betyr størrelsen på hoppene alt.
-Demoen kjører alt i nettleseren med eksakt kNN. Den bruker hopp på 1 s og sju vinduslengder (3,5–10 s), så rask og treg spilling finner et vindu som passer.
-I produksjon: OpenSearch eller FAISS med HNSW.
+Cosinus ser bort fra lengden på vektoren. Det er riktig for tekst-embeddings, der lengden ikke betyr noe.
+For melodier ER lengden informasjonen: et lite steg (+2) og et stort sprang (+7) peker samme vei, men er ulike melodier.
+Cosinus skiller fortsatt opp fra ned (sang C får −1).
+-->
+
+---
+clicks: 1
+---
+
+# Steg 4: hent 20 vinduer, få <span class="accent">sanger</span>
+
+<div class="grid grid-cols-[1fr_2fr] gap-6 mt-6">
+<div>
+
+```json
+GET melodier/_search
+{
+  "size": 20,
+  "query": { "knn": { "kontur": {
+    "vector": [-2.1, -2.1, 0.4, …],
+    "k": 20
+  }}},
+  "_source": ["sang", "start"]
+}
+```
+
+<div class="small mt-4">
+
+**Overfetching:** samme sang treffer mange ganger (vinduer som overlapper, ulike lengder). Vi henter 20 vinduer og slår dem sammen til sanger i appen.
+
+</div>
+</div>
+<div>
+
+<OverFetch :step="$clicks" />
+
+</div>
+</div>
+
+<!--
+Ekte treff fra demo-indeksen: utdraget fra Blinke, spilt 5 halvtoner opp og litt surt (samme som på steg 2).
+kNN er rask, men grov: tempo og start stemmer sjelden helt. Derfor rangerer vi på nytt med DTW i neste steg.
 -->
 
 ---

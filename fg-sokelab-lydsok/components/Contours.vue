@@ -4,7 +4,7 @@
 // step 1: begge sentrert, de ligger oppå hverandre
 // step 2: overlappende vinduer
 // step 3: ett vindu som vektor
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { getCtx, playTone } from '../lib/audio'
 import { DIMS, HOP, WIN, center, fakeHum, fill, mean, resample, songContour } from '../lib/qbh'
 import { songById, songLength, timed } from '../lib/songs'
@@ -57,6 +57,10 @@ const wins = computed(() => {
 })
 const WIN_HOP = 2 // som i forklaringen; demoen bruker 1 s og flere vindusstørrelser
 const pick = 2 // vinduet 4–9 s
+// Hover på steg 2: musa over plottet velger vinduet som starter rett til venstre for pekeren
+const hover = ref<number | null>(null)
+const active = computed(() => (props.step >= 3 ? pick : props.step === 2 ? hover.value : null))
+const hitEnd = (i: number) => (i + 1 < wins.value.length ? wins.value[i + 1].s : wins.value[i].e)
 const vec = computed(() => {
   const c = fill(sc)
   const a = Math.round(wins.value[pick].s / HOP)
@@ -77,7 +81,7 @@ function playHum() {
   <div class="ct">
     <div class="btns">
       <button class="pill g" @click="playSong">▶ Sangen (MIDI)</button>
-      <button v-if="step < 2" class="pill b" @click="playHum">▶ Spilt query (+5, litt surt)</button>
+      <button v-if="step < 2" class="pill b" @click="playHum">▶ Spilt query (+5 halvtoner, litt surt)</button>
     </div>
     <svg :width="W" :height="H" class="plot">
       <line v-if="normalized" x1="0" :x2="W" :y1="H / 2" :y2="H / 2" class="zero" />
@@ -90,7 +94,7 @@ function playHum() {
           y="0"
           :height="H"
           class="win"
-          :class="{ pick: step >= 3 && i === pick, dim: step >= 3 && i !== pick }"
+          :class="{ pick: active === i, dim: active !== null && i !== active }"
           :style="{ '--d': i * 0.12 + 's' }"
         />
       </g>
@@ -98,9 +102,28 @@ function playHum() {
       <path v-if="step < 2" :d="qD" class="q" />
       <text v-if="step === 0" :x="x(qStart) + 4" :y="yAbs(72) - 6" class="lbl b">query: alle tall +5</text>
       <text v-if="step === 1" :x="x(qStart) + 4" :y="yRel(5)" class="lbl b">etter normalisering: samme form</text>
+      <g v-if="step === 2" @mouseleave="hover = null">
+        <rect
+          v-for="(w, i) in wins"
+          :key="'h' + i"
+          :x="x(w.s)"
+          :width="x(hitEnd(i) - w.s)"
+          y="0"
+          :height="H"
+          class="hit"
+          @mouseenter="hover = i"
+        />
+      </g>
     </svg>
     <div v-if="step >= 2 && step < 3" class="winlist">
-      <span v-for="(w, i) in wins" :key="i" class="chip">{{ w.s }}–{{ w.e }} s</span>
+      <span
+        v-for="(w, i) in wins"
+        :key="i"
+        class="chip"
+        :class="{ on: hover === i }"
+        @mouseenter="hover = i"
+        @mouseleave="hover = null"
+      >{{ w.s }}–{{ w.e }} s</span>
     </div>
     <div v-if="step >= 3" class="vec">
       <svg :width="W" height="70">
@@ -160,9 +183,18 @@ path {
   stroke-width: 1.5;
   animation: pop 0.5s both;
   animation-delay: var(--d);
+  pointer-events: none;
+  transition:
+    opacity 0.15s,
+    fill 0.15s,
+    stroke-width 0.15s;
 }
 .win.dim {
   opacity: 0.12;
+}
+.hit {
+  fill: transparent;
+  cursor: pointer;
 }
 .win.pick {
   fill: rgba(245, 155, 35, 0.28);
@@ -194,6 +226,12 @@ path {
   padding: 3px 12px;
   font-size: 13px;
   font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.chip.on {
+  background: rgba(245, 155, 35, 0.28);
+  border-color: var(--sp-orange);
 }
 .vec {
   display: flex;
