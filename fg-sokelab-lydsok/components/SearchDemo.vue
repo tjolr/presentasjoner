@@ -183,7 +183,7 @@ onBeforeUnmount(() => {
   margin-left: auto;
 }
 .rec.on {
-  background: #e3342f;
+  background: #e5484d;
   color: #fff;
 }
 .q {
@@ -286,7 +286,7 @@ onBeforeUnmount(() => {
   background: var(--sp-elev);
 }
 .res.first {
-  box-shadow: 0 0 0 1px var(--sp-green), 0 8px 28px -10px rgba(30, 215, 96, 0.6);
+  box-shadow: 0 0 0 1px var(--sp-green), 0 8px 28px -10px rgba(127, 140, 213, 0.6);
 }
 .rank {
   font-weight: 800;

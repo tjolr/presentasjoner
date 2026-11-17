@@ -6,23 +6,22 @@ transition: slide-left
 drawings:
   persist: false
 fonts:
-  sans: Inter
-  provider: none
+  sans: Geist
+  mono: JetBrains Mono
+  weights: '400,500,600,700'
+  provider: google
+layout: default
 ---
 
-<div class="stack">
-
-<div class="text-center">
+<div class="text-center mt-4">
 <div class="eyebrow">Søkelab · multimodalt søk · del 2</div>
 
-# Hvordan søker man i <span class="accent">lyd</span>?
+# Hvordan søker man i <span class="accent">lyd?</span>
 
-<div class="sub">Fra lydbølger til noe vi kan søke i</div>
+<div class="sub text-lg">Fra lydbølger til noe vi kan søke i</div>
 </div>
 
-<Scope view="wave" :height="150" />
-
-</div>
+<Scope view="wave" bleed :height="290" class="mt-6" />
 
 <!--
 Start: spill en sang på gitaren. Neste slide: ta den opp.
@@ -33,35 +32,47 @@ Skru på «Mikrofon» oppe til høyre.
 
 # Et <span class="accent">lydklipp</span>
 
-<Recorder class="mt-4" />
+<Recorder target="intro" class="mt-4" />
 
 <div class="sub text-center mt-3">Dette er alt datamaskinen har: en lang rekke tall. Ikke «G-dur», ikke «Fader Jakob».</div>
 
 <!--
-Spill sangen, trykk «Ta opp» før og «Stopp» etter (eller ta opp i Logic og dra fila inn hit).
+Spill introsangen. Ta opp i Logic og dra fila inn hit (eller «Ta opp» direkte).
 Klikk i bølgen for å spille fra et punkt.
-Opptaket kan spilles av igjen på de neste slidene med «▶ Opptaket», så analysene viser det du spilte.
+Klippet kan spilles igjen på analyseslidene («Intro» i velgeren).
 -->
 ---
 
 # Lyd: 48 000 tall i <span class="accent">sekundet</span>
 
-<Scope view="wave" :height="200" class="mt-2" />
-
-<div class="sub text-center mt-3">Hvert tall: hvor langt høyttaleren er dyttet ut akkurat da. Raske svingninger = lys tone, store utslag = høy lyd.</div>
+<div class="sub text-center -mt-2">Hvert tall: hvor langt høyttaleren er dyttet ut akkurat da.<br/>Raske svingninger = lys tone, store utslag = høy lyd.</div>
 
 <v-click>
 <div class="text-center mt-3 text-xl">Kan vi gjøre disse tallene om til noe <strong class="accent">nyttig</strong>?</div>
 </v-click>
 
+<Scope view="wave" bleed :height="250" class="mt-4" />
+
 <!--
 Sinus: én frekvens, helt ren bølge.
 Gitarstreng: samme tone, men mange frekvenser oppå hverandre (overtoner). Det er derfor en gitar og et piano høres forskjellige ut.
 Akkord: flere toner samtidig, bølgen blir rotete.
-Gitar via mikrofon/lydkort: skru på «Mikrofon». «▶ Opptaket» spiller klippet fra forrige slide.
+Gitar via mikrofon/lydkort: skru på «Mikrofon». «▶ Intro» spiller introsangen fra forrige slide.
 Poeng: bølgen sier ingenting direkte om hvilke toner eller akkorder det er. Det må vi regne ut.
 -->
 
+---
+
+# Nå noe <span class="accent">enklere</span>
+
+<Recorder target="eksempel" class="mt-4" />
+
+<div class="sub text-center mt-3">Noen få akkorder, så en melodi med én tone om gangen. Dette klippet bruker vi i analysene.</div>
+
+<!--
+public/eksempel.wav er lastet inn på forhånd. Ta opp på nytt eller dra inn en fil for å erstatte det (gjelder til siden lastes på nytt).
+Forslag: G – C – D – Em strummet, så Fader Jakob med enkelttoner.
+-->
 ---
 
 # Hvilken <span class="accent">akkord</span> spilles?
@@ -73,9 +84,10 @@ Poeng: bølgen sier ingenting direkte om hvilke toner eller akkorder det er. Det
 <!--
 Teknisk navn: chroma. Bøtte = MIDI-tall % 12.
 Vi sammenligner histogrammet med maler: «dur» = bøttene 0, 4, 7 fra grunntonen; «moll» = 0, 3, 7.
-Tallet under er akkorden relativt til sangens grunntone (Nashville-systemet): som en relativ indeks i stedet for en absolutt.
-Spill akkorder på gitaren med mikrofonen på. Fungerer best med bare gitar.
-Prøv også «▶ Opptaket».
+Tallet under er akkorden relativt til sangens grunntone (Nashville-systemet): en relativ indeks i stedet for en absolutt.
+SI: «Husk dette trikset: relativt i stedet for absolutt. Vi gjør det samme med melodien i steg 2.»
+Spill akkorder på gitaren med mikrofonen på, eller «▶ Eksempel».
+Fungerer på gitar alene. På en ferdig miks (sang, bass, trommer) blir histogrammet grøtete: da må man dele opp sporene først (Demucs, se backup).
 -->
 
 ---
@@ -104,33 +116,6 @@ I Python: librosa.pyin eller CREPE. Basic Pitch (Spotify) gjør lyd → MIDI-fil
 X: tid. Y: frekvens. Lys = sterk.
 Sinus = én strek. Gitar = én tone + flere svakere streker over (overtoner). Akkord = mange streker.
 Dette «bildet» er det nesten alle lydmodeller jobber med.
--->
-
----
-
-# Stem separation: fra miks til <span class="accent">spor</span>
-
-<div class="grid grid-cols-[560px_1fr] gap-6 mt-4 items-center">
-
-<Stems />
-
-<div class="small">
-<v-clicks>
-
-- En miks er bare **summen** av sporene
-- **Demucs** (Meta) går motsatt vei: miks → vokal, bass, trommer, resten
-- Melodi fra **vokalsporet**, akkorder fra **bass + gitar**
-- Tregt på CPU: kjør det én gang ved indeksering, ikke ved søk
-
-</v-clicks>
-</div>
-
-</div>
-
-<!--
-Skru av og på sporene mens miksen spiller. Miks-bølgen er summen av de fire over.
-Poeng: akkord- og tone-analysen virker fint på gitar alene. På en ferdig miks må vi dele den opp først.
-Demucs: pip install demucs; demucs sang.mp3. Ca. et halvt minutt per låt på en Mac.
 -->
 
 ---
@@ -231,18 +216,27 @@ clicks: 1
 <div v-else>Trekk fra gjennomsnittet: <strong class="accent">bare formen er igjen</strong>. Som en <span class="os">analyzer</span> som gjør «Applikasjonene» og «applikasjon» til samme token.</div>
 </div>
 
+<!--
+Koble tilbake til akkord-sliden: der regnet vi akkorden relativt til grunntonen. Her trekker vi fra snittet. Samme idé: relativt, ikke absolutt.
+-->
+
 ---
 clicks: 1
 ---
 
-# Steg 3: overlappende <span class="accent">vinduer</span>
+# Steg 3: vinduer = <span class="accent">passages</span>
 
 <Contours :step="2 + $clicks" class="mt-2" />
 
 <div class="text-center mt-2">
 <div v-if="$clicks === 0" class="sub">5 s vinduer med 2 s hopp. Starter du å nynne midt i sangen, treffer du fortsatt et vindu.</div>
-<div v-else class="sub">Hvert vindu blir 64 tall og sentreres. Akkurat som <span class="os">chunking</span> av lange artikler.</div>
+<div v-else class="sub">Hvert vindu er en <span class="os">passage</span> med referanse til sangen sin. Vi søker i vinduer, men returnerer sanger. Som avsnitt → Wikipedia-artikkel.</div>
 </div>
+
+<!--
+Bygg på Joakim: dette er passage retrieval. Sangen er forelder-dokumentet, vinduene er passages.
+Søk treffer vinduer, men resultatet er sanger (pluss hvor i sangen).
+-->
 
 ---
 
@@ -271,7 +265,7 @@ PUT melodier
 <div class="small">
 <v-clicks>
 
-- Ett **dokument per vindu**, ikke per sang
+- Én **passage per vindu**, med `sang` som forelder
 - **`l2`**, ikke `cosinesimil`: et hopp på +2 og et hopp på +7 peker i samme *retning*, men er ulike melodier
 - **Overfetching:** vi skal vise 5, men henter `k: 20`
 - Hvorfor? kNN er rask, men grov. Tempo og start stemmer sjelden helt.
@@ -324,21 +318,25 @@ librosa.sequence.dtw(..., subseq=True) gjør dette i én linje.
 <v-clicks>
 
 <div class="text-center mt-12 text-lg">Billig søk på <strong>alt</strong>, dyr sammenligning på <strong>litt</strong>.</div>
-<div class="text-center sub mt-2">OpenSearch har <code>rescore</code> og <code>search pipelines</code> til dette, men DTW finnes ikke der. Da gjør vi det selv.</div>
+<div class="text-center sub mt-2">Jo mer avansert søket blir, desto mer flytter vi ut av søkemotoren og inn i appen. DTW finnes ikke i OpenSearch, så vi gjør det selv.</div>
 
 </v-clicks>
 
+<!--
+Joakims poeng fra del 1: søkemotoren gjør grunnleggende indeksering og kNN, resten bygger vi utenpå.
+-->
+
 ---
 
-# Demo: <span class="accent">nynn</span> en sang
+# Demo: <span class="accent">spill</span> en sang
 
 <SearchDemo class="mt-1" />
 
 <!--
 Korpus: 8 folkemelodier (Fader Jakob, Lisa, Ode til gleden, Hurra for deg, Bjelleklang …).
 1. Trykk «Lisa» og «Søk». kNN gir feil sang på #1, DTW flytter riktig sang opp.
-2. Live: skru på mikrofon, trykk «Ta opp», nynn eller spill melodien på gitaren (én tone om gangen).
-3. MIDI: spill på keyboardet mens den tar opp, da brukes tallene direkte.
+2. Live: velg lydkortet oppe til høyre, trykk «Ta opp» og spill melodien på gitaren. Én tone om gangen, demp strengen før neste tone. 5 s.
+3. Backup: spill melodien på MIDI-keyboardet mens den tar opp. Da er tallene eksakte.
 Klikk et treff for å høre utdraget den mener du nynnet.
 -->
 
@@ -371,7 +369,7 @@ Klikk et treff for å høre utdraget den mener du nynnet.
 <h3>Semantisk</h3>
 <p>«Rolig gitar med regn i bakgrunnen»</p>
 <p class="sub">Tekst og lyd i samme vektorrom.</p>
-<div class="os">≈ neural-query, som på Wikipedia</div>
+<div class="os">≈ CLIP fra del 1, bare med lyd</div>
 </div>
 </v-click>
 </div>
@@ -379,6 +377,58 @@ Klikk et treff for å høre utdraget den mener du nynnet.
 <v-click>
 <div class="sub text-center mt-8">Det vi nettopp bygde er <strong class="accent">query-by-humming</strong>: en liten SoundHound-klone.</div>
 </v-click>
+
+---
+
+# Kobling til det vi kan fra før
+
+<table class="ez mt-6"><tbody>
+<tr><th>OpenSearch</th><th>Lydsøk</th></tr>
+<tr><td class="os">Analyzer (lowercase, stemming)</td><td>Trekk fra snitt: samme melodi uansett høyde</td></tr>
+<tr><td class="os">Invertert indeks + term</td><td>Shazam-hasher</td></tr>
+<tr><td class="os">Ingest pipeline (text_embedding)</td><td>Lyd → tall → vinduer → vektor</td></tr>
+<tr><td class="os">Passage retrieval (avsnitt → artikkel)</td><td>Overlappende vinduer → sang</td></tr>
+<tr><td class="os">knn_vector + HNSW</td><td>64 tall per vindu, l2</td></tr>
+<tr><td class="os">rescore / rerank</td><td>Subsequence DTW i appen</td></tr>
+<tr><td class="os">CLIP (tekst ↔ bilde)</td><td>CLAP (tekst ↔ lyd)</td></tr>
+</tbody></table>
+
+---
+layout: center
+---
+
+<div class="text-center">
+
+# Backup
+
+<div class="sub">Ekstra slides hvis det kommer spørsmål</div>
+</div>
+---
+
+# Stem separation: fra miks til <span class="accent">spor</span>
+
+<div class="grid grid-cols-[560px_1fr] gap-6 mt-4 items-center">
+
+<Stems />
+
+<div class="small">
+<v-clicks>
+
+- En miks er bare **summen** av sporene
+- **Demucs** (Meta) går motsatt vei: miks → vokal, bass, trommer, resten
+- Melodi fra **vokalsporet**, akkorder fra **bass + gitar**
+- Tregt på CPU: kjør det én gang ved indeksering, ikke ved søk
+
+</v-clicks>
+</div>
+
+</div>
+
+<!--
+Skru av og på sporene mens miksen spiller. Miks-bølgen er summen av de fire over.
+Poeng: akkord- og tone-analysen virker fint på gitar alene. På en ferdig miks må vi dele den opp først.
+Demucs: pip install demucs; demucs sang.mp3. Ca. et halvt minutt per låt på en Mac.
+-->
 
 ---
 
@@ -423,21 +473,6 @@ Men nynner du, matcher ingenting: frekvensene er helt andre enn i originalopptak
 <tr><td>Dele en miks i spor</td><td class="lvl m">Middels</td><td>Demucs</td></tr>
 <tr><td>Lyd → MIDI med flere toner samtidig</td><td class="lvl m">Middels</td><td>Basic Pitch (Spotify)</td></tr>
 <tr><td>Melodi fra ferdig miks, falsk sang, avanserte akkorder</td><td class="lvl h">Vanskelig</td><td>forskning</td></tr>
-</tbody></table>
-
----
-
-# Kobling til det vi kan fra før
-
-<table class="ez mt-6"><tbody>
-<tr><th>OpenSearch</th><th>Lydsøk</th></tr>
-<tr><td class="os">Analyzer (lowercase, stemming)</td><td>Trekk fra snitt: samme melodi uansett høyde</td></tr>
-<tr><td class="os">Invertert indeks + term</td><td>Shazam-hasher</td></tr>
-<tr><td class="os">Ingest pipeline (text_embedding)</td><td>Lyd → tall → vinduer → vektor</td></tr>
-<tr><td class="os">Chunking av lange dokumenter</td><td>Overlappende vinduer</td></tr>
-<tr><td class="os">knn_vector + HNSW</td><td>64 tall per vindu, l2</td></tr>
-<tr><td class="os">rescore / rerank</td><td>Subsequence DTW i appen</td></tr>
-<tr><td class="os">neural-query (tekst → vektor)</td><td>CLAP (tekst ↔ lyd)</td></tr>
 </tbody></table>
 
 ---

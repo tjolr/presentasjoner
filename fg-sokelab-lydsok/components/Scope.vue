@@ -12,14 +12,16 @@ const props = withDefaults(
     peaks?: boolean
     height?: number
     width?: number
+    /** Bølgen går helt ut til kantene og ned til bunnen av sliden */
+    bleed?: boolean
   }>(),
-  { view: 'both', peaks: false, height: 230, width: 860 },
+  { view: 'both', peaks: false, height: 230, width: 860, bleed: false },
 )
 
 const wave = ref<HTMLCanvasElement>()
 const spec = ref<HTMLCanvasElement>()
 const root = ref<HTMLElement>()
-const W = props.width
+const W = props.bleed ? 980 : props.width
 let frame = 0
 const FMIN = 60
 const FMAX = 5000
@@ -70,18 +72,37 @@ function draw() {
         break
       }
     g.clearRect(0, 0, W, h)
-    g.strokeStyle = 'rgba(255,255,255,0.08)'
+    const mid = props.bleed ? h * 0.42 : h / 2
+    g.strokeStyle = 'rgba(255,255,255,0.06)'
+    g.lineWidth = 1
     g.beginPath()
-    g.moveTo(0, h / 2)
-    g.lineTo(W, h / 2)
+    g.moveTo(0, mid)
+    g.lineTo(W, mid)
     g.stroke()
-    g.strokeStyle = '#1ed760'
-    g.lineWidth = 2
-    g.beginPath()
     const n = 1200
+    const amp = props.bleed ? h * 0.8 : h * 0.9
+    g.beginPath()
     for (let i = 0; i < n; i++) {
       const x = (i / n) * W
-      const y = h / 2 - buf[z + i] * h * 0.9
+      const y = mid - buf[z + i] * amp
+      i ? g.lineTo(x, y) : g.moveTo(x, y)
+    }
+    // Myk lavendel-flate under kurven som tones ut mot bunnen
+    g.lineTo(W, h)
+    g.lineTo(0, h)
+    g.closePath()
+    const grad = g.createLinearGradient(0, 0, 0, h)
+    grad.addColorStop(0, 'rgba(127,140,213,0.16)')
+    grad.addColorStop(0.55, 'rgba(127,140,213,0.06)')
+    grad.addColorStop(1, 'rgba(127,140,213,0)')
+    g.fillStyle = grad
+    g.fill()
+    g.strokeStyle = '#98a6ea'
+    g.lineWidth = 2
+    g.beginPath()
+    for (let i = 0; i < n; i++) {
+      const x = (i / n) * W
+      const y = mid - buf[z + i] * amp
       i ? g.lineTo(x, y) : g.moveTo(x, y)
     }
     g.stroke()
@@ -100,7 +121,10 @@ function draw() {
       const bin = Math.round((f / sr) * tap.fftSize)
       const v = Math.max(0, Math.min(1, (db[bin] + 95) / 70))
       col[y] = v
-      g.fillStyle = `rgb(${Math.round(30 * v + 18 * v * v * 8)},${Math.round(18 + 200 * v)},${Math.round(18 + 70 * v)})`
+      // Svart → lavendel (--pad) → hvitt
+      const a = Math.min(1, v * 1.35)
+      const w = v ** 4
+      g.fillStyle = `rgb(${Math.round(127 * a + 128 * w)},${Math.round(140 * a + 115 * w)},${Math.round(213 * a + 42 * w)})`
       g.fillRect(W - step, y, step, 1)
     }
     frame++
@@ -128,7 +152,7 @@ onMounted(() => {
   getCtx()
   if (spec.value) {
     const g = spec.value.getContext('2d')!
-    g.fillStyle = '#121212'
+    g.fillStyle = '#000'
     g.fillRect(0, 0, W, spec.value.height)
   }
   draw()
@@ -142,12 +166,12 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
       <button v-for="s in sources" :key="s.label" class="pill" @click="s.play">{{ s.label }}</button>
       <ClipButton />
     </div>
-    <div v-if="view !== 'spec'" class="box">
-      <span class="tag">Lydbølge (amplitude over tid)</span>
+    <div v-if="view !== 'spec'" class="box" :class="{ bleed }">
+      <span v-if="!bleed" class="tag">Lydbølge · amplitude over tid</span>
       <canvas ref="wave" :width="W" :height="view === 'wave' ? height : 110" />
     </div>
     <div v-if="view !== 'wave'" class="box">
-      <span class="tag">Spektrogram (frekvens over tid)</span>
+      <span class="tag">Spektrogram · frekvens over tid</span>
       <canvas ref="spec" :width="W" :height="view === 'spec' ? height : height - 60" />
       <div class="axis">
         <span
@@ -175,19 +199,31 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
 }
 .box {
   position: relative;
-  background: var(--sp-surface);
-  border-radius: 14px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-panel);
+  border-radius: var(--radius-2xl);
   overflow: hidden;
+}
+.box.bleed {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+.box.bleed canvas {
+  width: 100%;
 }
 canvas {
   display: block;
 }
 .tag {
   position: absolute;
-  left: 12px;
-  top: 8px;
-  font-size: 12px;
-  color: var(--sp-sub);
+  left: 14px;
+  top: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--text-low);
   z-index: 1;
 }
 .axis span {

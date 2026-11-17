@@ -34,7 +34,7 @@ function draw() {
   // Sangen langs toppen
   const sMin = Math.min(...s)
   const sMax = Math.max(...s)
-  g.strokeStyle = '#1ed760'
+  g.strokeStyle = '#98a6ea'
   g.lineWidth = 2
   g.beginPath()
   s.forEach((v, j) => {
@@ -47,7 +47,7 @@ function draw() {
   // Queryen langs venstre side (tid nedover)
   const qMin = Math.min(...q)
   const qMax = Math.max(...q)
-  g.strokeStyle = '#509bf5'
+  g.strokeStyle = '#5cb8da'
   g.beginPath()
   q.forEach((v, i) => {
     const yy = T + i * ch
@@ -73,7 +73,7 @@ function draw() {
     // Område i sangen
     g.fillStyle = 'rgba(245,155,35,0.18)'
     g.fillRect(L + r.start * cw, 0, (r.end - r.start + 1) * cw, T - 2)
-    g.strokeStyle = '#f59b23'
+    g.strokeStyle = '#e08a52'
     g.lineWidth = 3
     g.beginPath()
     r.path.forEach(([i, j], k) => {

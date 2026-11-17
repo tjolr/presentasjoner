@@ -11,8 +11,11 @@ pnpm dev        # åpner http://localhost:3030
 - **Bruk Chrome.** Web MIDI fungerer ikke i Safari.
 - **Mikrofon** (oppe til høyre): gitar via lydkort eller mikrofon. Ekkokansellering og støyfilter er skrudd av.
 - **MIDI** (oppe til høyre): kobler til alle keyboard. «Lyd fra MIDI» spiller notene i nettleseren. Skru den av hvis keyboardet også går gjennom Logic.
-- **Åpning:** spill en sang, ta den opp på slide 2 («Et lydklipp»). Backup: ta opp i Logic og dra fila inn. Klippet kan spilles igjen med «▶ Opptaket» på analyseslidene (forsvinner ved reload).
-- Pitch-sporing («Hvilken tone spilles?» og demoen) virker best med **én tone om gangen**. Demp strengene mellom tonene.
+- **Inngang:** skru på «Mikrofon» og velg lydkortet i menyen ved siden av (huskes). Kanal 1 brukes.
+- **Introsang (slide 2):** spill, ta opp i Logic, dra fila inn. Lagres i plassen «Intro».
+- **Eksempelklipp (slide 4):** `public/eksempel.wav` lastes automatisk hvis den finnes. Opptak/fil på sliden erstatter det til siden lastes på nytt. Analyseslidene har «▶ Eksempel / Intro» med velger.
+- **MIDI-keyboard:** «Lyd fra MIDI» er på som standard, så notene høres og går inn i analysene. Demp Logic så du ikke får dobbel lyd.
+- Pitch-sporing («Hvilken tone spilles?» og demoen) virker best med **én tone om gangen**. Demp strengene mellom tonene. Bommer gitarsøket: spill melodien på MIDI-keyboardet.
 - Akkordgjenkjenning («Hvilken akkord spilles?») virker best med **bare gitar**, ikke full miks.
 
 ## Struktur

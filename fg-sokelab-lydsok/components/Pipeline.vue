@@ -6,7 +6,7 @@ const steps = [
   { t: 'Lyd', s: 'mikrofon / fil', os: 'dokument' },
   { t: 'Tall', s: 'tone hvert 30. ms', os: 'ingest' },
   { t: 'Normaliser', s: 'trekk fra snitt', os: 'analyzer' },
-  { t: 'Vinduer', s: '5 s, hopp 2 s', os: 'chunking' },
+  { t: 'Vinduer', s: '5 s, hopp 2 s', os: 'passages' },
   { t: 'Vektor', s: '64 tall', os: 'knn_vector' },
   { t: 'kNN', s: 'hent 20', os: 'HNSW, k: 20' },
   { t: 'DTW', s: 'rerank til 5', os: 'rescore' },
@@ -49,7 +49,7 @@ const steps = [
 .step.now {
   background: var(--sp-elev);
   transform: scale(1.07);
-  box-shadow: 0 0 0 1px var(--sp-green), 0 10px 36px -8px rgba(30, 215, 96, 0.55);
+  box-shadow: 0 0 0 1px var(--sp-green), 0 10px 36px -8px rgba(127, 140, 213, 0.55);
 }
 .t {
   font-size: 19px;
@@ -62,7 +62,7 @@ const steps = [
 }
 .os {
   margin-top: 10px;
-  font-family: ui-monospace, Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   color: var(--sp-blue);
   border-top: 1px solid var(--sp-elev2);

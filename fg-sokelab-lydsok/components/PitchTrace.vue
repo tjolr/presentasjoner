@@ -49,7 +49,7 @@ function draw() {
     g.lineTo(W, y(m))
     g.stroke()
     g.fillStyle = 'rgba(255,255,255,0.4)'
-    g.font = '10px Inter, sans-serif'
+    g.font = '10px Geist, sans-serif'
     g.fillText(noteName(m), 4, y(m) + 3)
   }
   const n = Math.floor((W - 40) / PX)
@@ -57,7 +57,7 @@ function draw() {
   for (let i = start; i < pts.length; i++) {
     const p = pts[i]
     if (p.v === null) continue
-    g.fillStyle = p.midi ? '#f59b23' : '#1ed760'
+    g.fillStyle = p.midi ? '#e08a52' : '#98a6ea'
     g.fillRect(40 + (i - start) * PX, y(p.v) - 2, PX, 4)
   }
 }
@@ -149,9 +149,9 @@ canvas {
   margin-left: 10px;
 }
 .sw.g {
-  background: #1ed760;
+  background: #98a6ea;
 }
 .sw.o {
-  background: #f59b23;
+  background: #e08a52;
 }
 </style>

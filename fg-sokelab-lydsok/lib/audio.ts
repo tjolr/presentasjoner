@@ -205,11 +205,50 @@ export function hat(when: number, vel = 0.25, dest?: AudioNode, len = 0.05, hp =
 
 export const snare = (when: number, dest?: AudioNode) => hat(when, 0.45, dest, 0.16, 1500)
 
+/** Valgt lydinngang (lydkort / Mac-mikrofon). Huskes mellom økter. */
+const store = (k: string, v?: string) => {
+  try {
+    if (v === undefined) return localStorage.getItem(k) ?? ''
+    localStorage.setItem(k, v)
+  } catch {}
+  return v ?? ''
+}
+export const micDeviceId = ref(store('lydsok.mic'))
+export const micInputs = ref<{ id: string; label: string }[]>([])
+
+async function refreshInputs() {
+  const all = await navigator.mediaDevices.enumerateDevices()
+  micInputs.value = all
+    .filter((d) => d.kind === 'audioinput' && d.deviceId !== 'communications')
+    .map((d) => ({ id: d.deviceId, label: d.label || 'Inngang' }))
+}
+
+export async function setMicDevice(id: string) {
+  micDeviceId.value = store('lydsok.mic', id)
+  if (micOn.value) {
+    disableMic()
+    await enableMic()
+  }
+}
+
 export async function enableMic() {
   const c = getCtx()
-  micStream = await navigator.mediaDevices.getUserMedia({
-    audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
-  })
+  const audio: MediaTrackConstraints = {
+    echoCancellation: false,
+    noiseSuppression: false,
+    autoGainControl: false,
+    channelCount: { ideal: 1 }, // lydkort: kanal 1 (gitaren)
+  }
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio: micDeviceId.value ? { ...audio, deviceId: { exact: micDeviceId.value } } : audio,
+    })
+  } catch {
+    // Lagret enhet finnes ikke lenger: bruk standard
+    micStream = await navigator.mediaDevices.getUserMedia({ audio })
+  }
+  micDeviceId.value = micStream.getAudioTracks()[0]?.getSettings().deviceId ?? micDeviceId.value
+  void refreshInputs()
   micSource = c.createMediaStreamSource(micStream)
   micSource.connect(tap)
   micOn.value = true

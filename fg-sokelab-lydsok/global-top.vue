@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted } from 'vue'
-import { disableMic, enableMic, micOn } from './lib/audio'
+import { disableMic, enableMic, micDeviceId, micInputs, micOn, setMicDevice } from './lib/audio'
 import { enableMidi, midiDevice, midiOn, midiThru } from './lib/midi'
 
 async function toggleMic() {
@@ -29,6 +29,14 @@ onBeforeUnmount(() => {
     <button :class="{ sel: micOn }" title="Mikrofon / lydkort (gitar)" @click="toggleMic">
       <span class="dot" />Mikrofon
     </button>
+    <select
+      v-if="micOn && micInputs.length > 1"
+      :value="micDeviceId"
+      title="Lydinngang"
+      @change="setMicDevice(($event.target as HTMLSelectElement).value)"
+    >
+      <option v-for="d in micInputs" :key="d.id" :value="d.id">{{ d.label }}</option>
+    </select>
     <button :class="{ sel: midiOn }" :title="midiDevice || 'Koble til MIDI-keyboard'" @click="enableMidi">
       <span class="dot" />MIDI{{ midiOn ? '' : '' }}
     </button>
@@ -63,6 +71,16 @@ button {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+select {
+  background: transparent;
+  color: var(--sp-text);
+  border: none;
+  font: inherit;
+  font-weight: 600;
+  max-width: 180px;
+  padding: 0 6px;
+  cursor: pointer;
 }
 button.sel {
   background: var(--sp-green);

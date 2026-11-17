@@ -54,7 +54,7 @@ function loop() {
     getTap().getFloatTimeDomainData(buf)
     g.fillStyle = 'rgba(24,24,24,0.35)'
     g.fillRect(0, 0, wave.value.width, wave.value.height)
-    g.strokeStyle = '#509bf5'
+    g.strokeStyle = '#5cb8da'
     g.lineWidth = 1.5
     g.beginPath()
     for (let i = 0; i < buf.length; i++) {
@@ -184,7 +184,7 @@ rect.on {
   stroke-width: 1.5;
 }
 .log {
-  font-family: ui-monospace, Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 11.5px;
   height: 100px;
   overflow: hidden;

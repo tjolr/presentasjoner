@@ -1,0 +1,132 @@
+/* sustain — design tokens («Midtone»-paletten). Kopiert fra sustain; ikke rediger her, endre i sustain. */
+
+:root {
+  --bg: #171717;
+  --surface-0: #0f0f0f;
+  --surface-1: #151515;
+  --surface-2: #191919;
+  --surface-3: #212121;
+  --surface-4: #272727;
+  --surface-5: #313131;
+  --surface-leaf: #1a1a1a;
+  --surface-inset: #191919;
+  --border: #232323;
+  --border-bright: #2c2c2c;
+
+  --text-high: #f4f4f4;
+  --text-semi-high: #dcdcdc;
+  --text-muted: #c6c6c6;
+  --text-mid: #989898;
+  --text-low: #666666;
+  --text-dim: #4d4d4d;
+  --text-headline-muted: #8a8a8a;
+  --text-placeholder: #6b6b6b;
+
+  --surface-brand: #0a0a0a;
+  --surface-card: #141414;
+  --border-panel: #1d1d1d;
+  --step-rail: #262626;
+  --step-upcoming: #3a3a3a;
+
+  --hover-wash: color-mix(in srgb, var(--surface-2) 92%, white 8%);
+  --hover-edge: var(--text-mid);
+
+  --accent: #2f9c68;
+  --accent-solid: #14683f;
+  --accent-bright: #48b57e;
+  --accent-glow: rgba(47, 156, 104, 0.28);
+  --accent-tint: rgba(47, 156, 104, 0.18);
+  --accent-bright-halo: rgba(72, 181, 126, 0.16);
+  --accent-bright-glow: rgba(72, 181, 126, 0.5);
+
+  --click: #32a0c5;
+  --click-bright: #5cb8da;
+  --click-glow: rgba(50, 160, 197, 0.28);
+  --pad: #7f8cd5;
+  --pad-bright: #98a6ea;
+  --click-text: #a8d6e9;
+  --pad-text: #c3ccf2;
+  --pad-solid: #424b7e;
+  --pad-glow: rgba(127, 140, 213, 0.28);
+  --tracks: #b47ab7;
+  --tracks-bright: #cb95ce;
+  --tracks-text: #e1c2e2;
+  --tracks-solid: #673e69;
+  --tracks-glow: rgba(180, 122, 183, 0.28);
+
+  --role-drums: #824b85;
+  --role-bass: #714074;
+  --role-keys: #ae74b1;
+  --role-electric-guitar: #a168a4;
+  --role-vocals: #e1c2e2;
+  --role-other: #8d8d8d;
+
+  --section-edge: #8d9bb0;
+  --section-verse: #4f9fe8;
+  --section-build: #a8c94a;
+  --section-chorus: #e5677f;
+  --section-bridge: #9b7cf0;
+  --section-instrumental: #2fb3a3;
+
+  --beat: #48b57e;
+  --warm: #e08a52;
+  --hot: #e0645f;
+  --warn: #f5a524;
+  --warn-bg: rgba(245, 165, 36, 0.08);
+  --green: #2f9c68;
+
+  --error: #e06e5a;
+  --error-bright: #ea8f7d;
+  --info: #5b9fd4;
+  --info-bright: #7ab3de;
+
+  --rec: #e5484d;
+  --rec-glow: rgba(229, 72, 77, 0.3);
+
+  --accent-bg: rgba(47, 156, 104, 0.08);
+  --click-bg: rgba(50, 160, 197, 0.06);
+  --pad-bg: rgba(127, 140, 213, 0.06);
+  --tracks-bg: rgba(180, 122, 183, 0.06);
+  --overlay: rgba(0, 0, 0, 0.6);
+
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.1875rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.625rem;
+  --radius-full: 9999px;
+  --radius-circle: 50%;
+
+  --spacing-3xs: 0.125rem;
+  --spacing-xxs: 0.25rem;
+  --spacing-xs: 0.375rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.75rem;
+  --spacing-lg: 1rem;
+  --spacing-xl: 1.25rem;
+  --spacing-xxl: 1.5rem;
+  --spacing-3xl: 2rem;
+  --spacing-4xl: 3rem;
+
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0.01em;
+  --tracking-wide: 0.04em;
+  --tracking-wider: 0.1em;
+  --tracking-widest: 0.12em;
+
+  --transition-fast: 100ms ease;
+  --transition-base: 150ms ease;
+  --transition-slow: 200ms ease;
+
+  --shadow-1: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-2: 0 10px 24px -8px rgba(0, 0, 0, 0.65), 0 1px 0 rgba(255, 255, 255, 0.03) inset;
+  --shadow-glow: 0 0 0 1px var(--accent), 0 0 16px -6px var(--accent-glow);
+
+  --font-sans: 'Geist', -apple-system, 'Helvetica Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+}

@@ -3,17 +3,23 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { getTap, isShown } from '../lib/audio'
 import {
-  clip,
-  clipName,
+  type SlotId,
   clipPos,
   loadFile,
   playClip,
-  playing,
-  recordingClip,
+  playingSlot,
+  recordingSlot,
+  slots,
   startRecording,
   stopClip,
   stopRecording,
 } from '../lib/recording'
+
+const props = withDefaults(defineProps<{ target?: SlotId }>(), { target: 'intro' })
+const clip = computed(() => slots[props.target].buf)
+const clipName = computed(() => slots[props.target].name)
+const recordingClip = computed(() => recordingSlot.value === props.target)
+const playing = computed(() => playingSlot.value === props.target)
 
 const W = 860
 const H = 220
@@ -82,7 +88,7 @@ function draw() {
     live.push(m)
     const n = live.length
     const step = Math.max(1, n / W)
-    g.fillStyle = '#e3342f'
+    g.fillStyle = '#e5484d'
     for (let x = 0; x < Math.min(W, n); x++) {
       const v = Math.min(1, live[Math.floor(x * step)] * 2)
       g.fillRect(x, mid - v * (mid - 6), 1, Math.max(1, 2 * v * (mid - 6)))
@@ -92,7 +98,7 @@ function draw() {
 
   if (!peaks || !clip.value) {
     g.fillStyle = 'rgba(255,255,255,0.4)'
-    g.font = '15px Inter, sans-serif'
+    g.font = '15px Geist, sans-serif'
     g.textAlign = 'center'
     g.fillText('Ta opp, eller slipp en lydfil her', W / 2, mid + 5)
     g.textAlign = 'start'
@@ -100,7 +106,7 @@ function draw() {
   }
   const px = playing.value ? (clipPos.value / clip.value.duration) * W : -1
   for (let x = 0; x < W; x++) {
-    g.fillStyle = x < px ? '#1ed760' : '#535353'
+    g.fillStyle = x < px ? '#98a6ea' : '#313131'
     const lo = peaks[2 * x]
     const hi = peaks[2 * x + 1]
     const y1 = mid - hi * (mid - 6)
@@ -116,10 +122,11 @@ function draw() {
 async function toggleRec() {
   err.value = ''
   if (recordingClip.value) return stopRecording()
+  if (recordingSlot.value) return
   try {
     live = []
     recStart = performance.now()
-    await startRecording()
+    await startRecording(props.target)
   } catch (e) {
     err.value = 'Fikk ikke tilgang til mikrofonen'
   }
@@ -129,7 +136,7 @@ async function onFile(f?: File | null) {
   if (!f) return
   err.value = ''
   try {
-    await loadFile(f)
+    await loadFile(props.target, f)
   } catch {
     err.value = 'Klarte ikke å lese lydfila'
   }
@@ -143,7 +150,7 @@ function onDrop(e: DragEvent) {
 function seek(e: MouseEvent) {
   if (!clip.value || recordingClip.value) return
   const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
-  playClip(((e.clientX - r.left) / r.width) * clip.value.duration)
+  playClip(props.target, ((e.clientX - r.left) / r.width) * clip.value.duration)
 }
 
 onMounted(draw)
@@ -158,7 +165,7 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
       </button>
       <button class="pill" @click="file?.click()">Last inn fil</button>
       <input ref="file" type="file" accept="audio/*" hidden @change="onFile(($event.target as HTMLInputElement).files?.[0])" />
-      <button v-if="clip && !recordingClip" class="pill g" @click="playing ? stopClip() : playClip()">
+      <button v-if="clip && !recordingClip" class="pill g" @click="playing ? stopClip() : playClip(target)">
         {{ playing ? '■ Stopp' : '▶ Spill av' }}
       </button>
       <span class="sub name">{{ err || clipName }}</span>
@@ -194,7 +201,7 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
   font-size: 14px;
 }
 .rb.on {
-  background: #e3342f;
+  background: #e5484d;
   color: #fff;
 }
 .box {

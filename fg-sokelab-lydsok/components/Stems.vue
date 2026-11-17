@@ -21,10 +21,10 @@ const MEL = [
 ]
 
 const stems = reactive([
-  { id: 'drums', name: 'Trommer', color: '#f59b23', on: true },
-  { id: 'bass', name: 'Bass', color: '#509bf5', on: true },
-  { id: 'keys', name: 'Akkorder', color: '#b38cff', on: true },
-  { id: 'mel', name: 'Gitar', color: '#1ed760', on: true },
+  { id: 'drums', name: 'Trommer', color: '#e08a52', on: true },
+  { id: 'bass', name: 'Bass', color: '#5cb8da', on: true },
+  { id: 'keys', name: 'Akkorder', color: '#b47ab7', on: true },
+  { id: 'mel', name: 'Gitar', color: '#98a6ea', on: true },
 ])
 const nodes: Record<string, { g: GainNode; a: AnalyserNode }> = {}
 const canvases = ref<HTMLCanvasElement[]>([])
