@@ -421,16 +421,42 @@ clicks: 2
 
 # Steg 5: <span class="accent">DTW</span> fikser tempoet
 
+<div class="sub text-center -mt-2"><strong>D</strong>ynamic <strong>T</strong>ime <strong>W</strong>arping: «bøy tiden» så to kurver passer sammen.</div>
+
+<DtwStretch :step="$clicks" class="mt-3" />
+
+<div class="text-center sub mt-3 h-8">
+<span v-if="$clicks === 0">Samme melodi, men du spiller saktere. Du kommer etter sangen.</span>
+<span v-else-if="$clicks === 1">Sammenlign punkt for punkt: du er i utakt, så mange par blir <strong style="color:#ef6b6b">feil</strong>.</span>
+<span v-else><strong>DTW</strong> lar hvert punkt finne sin tone i sangen. Linjene kan skrå, men aldri krysse: tiden går bare framover.</span>
+</div>
+
+<!--
+Dette er hele idéen. Tenk to personer som går samme tur i ulikt tempo, med et strikk mellom seg.
+Holder du en tone lenger, kobles flere av dine punkter til samme punkt i sangen (linjene vifter ut).
+Går du fortere, hopper du over punkter i sangen.
+Kost = summen av forskjellene langs linjene. Lav kost = samme melodi.
+-->
+
+---
+clicks: 2
+---
+
+# Steg 5: slik <span class="accent">regner</span> DTW det ut
+
 <DtwView :step="$clicks" class="mt-2" />
 
 <div class="text-center sub mt-2 h-8">
-<span v-if="$clicks === 0">Sangen langs toppen, det du spilte nedover. Det er 40 % saktere og startet høyere.</span>
-<span v-else-if="$clicks === 1">Lys rute = like tall. Hver rute sammenligner ett punkt i det du spilte med ett punkt i sangen.</span>
-<span v-else>Billigste vei gjennom matrisen. Den kan starte hvor som helst i sangen (<em>subsequence</em> DTW).</span>
+<span v-if="$clicks === 0">Nå mot <em>hele</em> sangen: sangen bortover, det du spilte nedover. 40 % saktere og i en annen toneart.</span>
+<span v-else-if="$clicks === 1">Hver rute: er tonen min lik sangens tone akkurat her? <strong>Lys = ja.</strong></span>
+<span v-else>Finn den lyseste veien ned. Bratt = du spilte saktere. Der den starter og slutter = <strong>hvor i sangen</strong>.</span>
 </div>
 
 
 <!--
+Stien her er de samme linjene som på forrige slide: hvert steg nedover er ett av dine punkter, kolonnen er punktet i sangen det kobles til.
+Diagonalt = samme tempo. Brattere = du er saktere (flere rader per kolonne).
+Den kan starte og slutte hvor som helst i sangen (subsequence DTW), og prøver alle tonearter −12..12.
 Dynamic time warping: strekk og klem tiden så kurvene passer best mulig. Samme type algoritme som edit distance (Levenshtein), bare med tall i stedet for bokstaver.
 Vi får to ting: HVOR GODT det passer (kost) og HVOR i sangen (start/slutt).
 librosa.sequence.dtw(..., subseq=True) gjør dette i én linje.

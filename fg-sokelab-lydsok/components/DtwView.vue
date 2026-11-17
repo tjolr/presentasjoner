@@ -106,7 +106,7 @@ const info = computed(() => props.step >= 2)
   <div class="dtw">
     <div class="btns">
       <button class="pill g" @click="playSong">▶ Fader Jakob (sangen)</button>
-      <button class="pill b" @click="playHum">▶ Spilt: saktere og høyere</button>
+      <button class="pill b" @click="playHum">▶ Spilt: saktere, annen toneart</button>
       <span v-if="info" class="res">
         Treff <strong class="o">{{ from }}–{{ to }} s</strong> · kost <strong class="o">{{ r.cost.toFixed(2) }}</strong>
       </span>
