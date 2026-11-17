@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // Live pitch-kontur: fra synth, mikrofon (gitar/nynning) eller MIDI-keyboard.
-import ClipButton from './ClipButton.vue'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { getCtx, isShown, noteName, playTone, pluck } from '../lib/audio'
 import { onMidi } from '../lib/midi'
@@ -90,7 +89,6 @@ onBeforeUnmount(() => {
       <div class="src">
         <button class="pill" @click="playSong('fader', 'pluck')">Gitar: Fader Jakob</button>
         <button class="pill" @click="playSong('lisa', 'hum')">Nynning: Lisa gikk til skolen</button>
-        <ClipButton />
         <button class="pill" @click="pts.length = 0">Tøm</button>
       </div>
       <div class="now">

@@ -32,14 +32,15 @@ Skru på «Mikrofon» oppe til høyre.
 
 # Et <span class="accent">lydklipp</span>
 
-<Recorder target="intro" class="mt-4" />
+<Recorder class="mt-4" />
 
 <div class="sub text-center mt-3">Dette er alt datamaskinen har: en lang rekke tall. Ikke «G-dur», ikke «Fader Jakob».</div>
 
 <!--
-Spill introsangen. Ta opp i Logic og dra fila inn hit (eller «Ta opp» direkte).
+Spill introsangen. Ta opp her («Ta opp»), eller ta opp i Logic og dra fila inn.
 Klikk i bølgen for å spille fra et punkt.
-Klippet kan spilles igjen på analyseslidene («Intro» i velgeren).
+De 3 siste klippene huskes (også etter omlasting). På analyseslidene: velg «Lydklipp» oppe til høyre og ▶ for å spille det gjennom analysen, eller «Mikrofon» for live.
+Ta gjerne også opp et enklere klipp: noen få akkorder (G – C – D – Em), så Fader Jakob med enkelttoner.
 -->
 ---
 
@@ -57,22 +58,10 @@ Klippet kan spilles igjen på analyseslidene («Intro» i velgeren).
 Sinus: én frekvens, helt ren bølge.
 Gitarstreng: samme tone, men mange frekvenser oppå hverandre (overtoner). Det er derfor en gitar og et piano høres forskjellige ut.
 Akkord: flere toner samtidig, bølgen blir rotete.
-Gitar via mikrofon/lydkort: skru på «Mikrofon». «▶ Intro» spiller introsangen fra forrige slide.
+Gitar via mikrofon/lydkort: skru på «Mikrofon». Eller «Lydklipp» + ▶ oppe til høyre: spiller klippet fra forrige slide.
 Poeng: bølgen sier ingenting direkte om hvilke toner eller akkorder det er. Det må vi regne ut.
 -->
 
----
-
-# Nå noe <span class="accent">enklere</span>
-
-<Recorder target="eksempel" class="mt-4" />
-
-<div class="sub text-center mt-3">Noen få akkorder, så en melodi med én tone om gangen. Dette klippet bruker vi i analysene.</div>
-
-<!--
-public/eksempel.wav er lastet inn på forhånd. Ta opp på nytt eller dra inn en fil for å erstatte det (gjelder til siden lastes på nytt).
-Forslag: G – C – D – Em strummet, så Fader Jakob med enkelttoner.
--->
 ---
 
 # Hvilken <span class="accent">akkord</span> spilles?
@@ -86,7 +75,7 @@ Teknisk navn: chroma. Bøtte = MIDI-tall % 12.
 Vi sammenligner histogrammet med maler: «dur» = bøttene 0, 4, 7 fra grunntonen; «moll» = 0, 3, 7.
 Tallet under er akkorden relativt til sangens grunntone (Nashville-systemet): en relativ indeks i stedet for en absolutt.
 SI: «Husk dette trikset: relativt i stedet for absolutt. Vi gjør det samme med melodien i steg 2.»
-Spill akkorder på gitaren med mikrofonen på, eller «▶ Eksempel».
+Spill akkorder på gitaren med mikrofonen på, eller velg «Lydklipp» oppe til høyre og ▶.
 Fungerer på gitar alene. På en ferdig miks (sang, bass, trommer) blir histogrammet grøtete: da må man dele opp sporene først (Demucs, se backup).
 -->
 

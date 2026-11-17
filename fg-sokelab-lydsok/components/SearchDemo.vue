@@ -6,6 +6,7 @@ import { onMidi } from '../lib/midi'
 import { startTracker } from '../lib/pitch'
 import { HOP, type Ranked, fakeHum, fill, knn, queryVector, rerank } from '../lib/qbh'
 import { songById, timed } from '../lib/songs'
+import { playClip, selectedClip, source } from '../lib/recording'
 
 const REC_SEC = 5
 const root = ref<HTMLElement>()
@@ -42,6 +43,8 @@ function record() {
   reset()
   query.value = new Float32Array()
   recording.value = REC_SEC
+  // Kilde = lydklipp: spill klippet mens vi lytter
+  if (source.value === 'clip' && selectedClip.value) playClip()
   const t0 = performance.now()
   timer = setInterval(() => {
     const left = REC_SEC - (performance.now() - t0) / 1000
@@ -121,7 +124,7 @@ onBeforeUnmount(() => {
   <div ref="root" class="sd">
     <div class="btns">
       <button class="pill rec" :class="{ on: recording }" @click="record">
-        {{ recording ? `● Tar opp … ${recording}` : '● Ta opp 5 s (mikrofon / MIDI)' }}
+        {{ recording ? `● Tar opp … ${recording}` : `● Lytt 5 s (${source === 'clip' && selectedClip ? 'lydklipp' : 'mikrofon'} / MIDI)` }}
       </button>
       <span class="sub">eller</span>
       <button v-for="e in examples" :key="e.label" class="pill b" @click="useExample(e)">▶ {{ e.label }}</button>

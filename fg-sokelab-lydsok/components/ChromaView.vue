@@ -1,12 +1,30 @@
 <script setup lang="ts">
 // Chroma: brett hele spekteret sammen til 12 tonetrinn → match mot akkordmaler → Nashville-tall.
-import ClipButton from './ClipButton.vue'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { GUITAR, ftom, getCtx, getTap, isShown, pcName, strum } from '../lib/audio'
 
 const KEYS: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9 }
 const key = ref('G')
-const chords = ['G', 'C', 'D', 'Em', 'Am', 'Bm']
+// Akkordene i tonearten: 1, 4, 5, 6m, 2m, 3m
+const SCALE = [
+  [0, false],
+  [5, false],
+  [7, false],
+  [9, true],
+  [2, true],
+  [4, true],
+] as const
+const SHARP = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'B♭', 'B']
+const chords = computed(() =>
+  SCALE.map(([deg, minor]) => {
+    const r = (KEYS[key.value] + deg) % 12
+    const name = SHARP[r] + (minor ? 'm' : '')
+    // Gitargrep hvis vi har det, ellers en enkel åpen voicing med grunntonen i bassen
+    const b = 40 + ((r - 4 + 12) % 12)
+    const notes = GUITAR[name] ?? [b, b + 7, b + 12, b + 12 + (minor ? 3 : 4), b + 19]
+    return { name, notes }
+  }),
+)
 const chroma = ref(new Array(12).fill(0))
 const detected = ref<{ root: number; minor: boolean; score: number } | null>(null)
 const root = ref<HTMLElement>()
@@ -59,7 +77,7 @@ function loop() {
   detected.value = best.score > 0.7 ? best : null
 }
 
-const label = computed(() => (detected.value ? pcName(detected.value.root) + (detected.value.minor ? 'm' : '') : '–'))
+const label = computed(() => (detected.value ? SHARP[detected.value.root] + (detected.value.minor ? 'm' : '') : '–'))
 const number = computed(() => {
   if (!detected.value) return '–'
   const d = (detected.value.root - KEYS[key.value] + 12) % 12
@@ -78,8 +96,7 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
 <template>
   <div ref="root" class="cv">
     <div class="btns">
-      <button v-for="c in chords" :key="c" class="pill" @click="strum(GUITAR[c])">{{ c }}</button>
-      <ClipButton />
+      <button v-for="c in chords" :key="c.name" class="pill" @click="strum(c.notes)">{{ c.name }}</button>
       <label class="k sub">Sangens grunntone
         <select v-model="key"><option v-for="(_, k) in KEYS" :key="k">{{ k }}</option></select>
       </label>
@@ -124,9 +141,15 @@ select {
   color: var(--sp-text);
   border: 1px solid var(--sp-elev2);
   border-radius: 999px;
-  padding: 4px 12px;
+  padding: 4px 34px 4px 16px;
   font: inherit;
   font-weight: 700;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23fff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 12px 8px;
 }
 .row {
   display: flex;

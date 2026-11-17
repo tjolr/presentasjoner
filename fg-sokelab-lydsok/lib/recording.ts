@@ -1,26 +1,33 @@
-// To lydklipp: «intro» (sangen i starten) og «eksempel» (det analysene kjører på).
-// Eksempelet lastes fra public/eksempel.wav hvis fila finnes; opptak/fil overstyrer.
-import { reactive, ref } from 'vue'
-import { getCtx, getMaster, getMicStream } from './audio'
+// Lydklipp: de 3 siste opptakene/filene huskes (IndexedDB). Velgeren oppe til høyre
+// bestemmer om analysene får lyd fra mikrofonen (live) eller fra et klipp.
+import { computed, ref, shallowRef } from 'vue'
+import { disableMic, enableMic, getCtx, getMaster, getMicStream, micOn } from './audio'
 
-export type SlotId = 'intro' | 'eksempel'
-export const SLOT_LABEL: Record<SlotId, string> = { intro: 'Intro', eksempel: 'Eksempel' }
+const MAX = 3
 
-interface Slot {
-  buf: AudioBuffer | null
+export interface Clip {
+  id: string
   name: string
+  created: number
+  buf: AudioBuffer
 }
-export const slots = reactive<Record<SlotId, Slot>>({
-  intro: { buf: null, name: '' },
-  eksempel: { buf: null, name: '' },
-})
+interface Stored {
+  id: string
+  name: string
+  created: number
+  type: string
+  data: ArrayBuffer
+}
 
-/** Hvilket klipp analyseslidene spiller av */
-export const analysisSlot = ref<SlotId>('eksempel')
-/** Hvilket klipp som tas opp nå (null = ingen) */
-export const recordingSlot = ref<SlotId | null>(null)
-/** Hvilket klipp som spilles nå (null = ingen) */
-export const playingSlot = ref<SlotId | null>(null)
+/** Nyeste først */
+export const clips = shallowRef<Clip[]>([])
+export const selectedId = ref('')
+export const selectedClip = computed(() => clips.value.find((c) => c.id === selectedId.value) ?? null)
+
+/** Hvor analysene henter lyd fra */
+export const source = ref<'mic' | 'clip'>('mic')
+export const recording = ref(false)
+export const playing = ref(false)
 /** Sekunder inn i klippet under avspilling */
 export const clipPos = ref(0)
 
@@ -30,50 +37,109 @@ let startedAt = 0
 let offset = 0
 let raf = 0
 
-const decode = async (data: ArrayBuffer) => new OfflineAudioContext(1, 1, 48000).decodeAudioData(data)
+const decode = async (data: ArrayBuffer) => new OfflineAudioContext(1, 1, 48000).decodeAudioData(data.slice(0))
 
-// Forhåndsinnspilt eksempel (valgfritt)
+// --- IndexedDB ---
+const DB = 'lydsok'
+const STORE = 'clips'
+function db(): Promise<IDBDatabase> {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(DB, 1)
+    r.onupgradeneeded = () => r.result.createObjectStore(STORE, { keyPath: 'id' })
+    r.onsuccess = () => res(r.result)
+    r.onerror = () => rej(r.error)
+  })
+}
+async function tx<T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T> | void): Promise<T | undefined> {
+  const d = await db()
+  return new Promise((res, rej) => {
+    const t = d.transaction(STORE, mode)
+    const r = fn(t.objectStore(STORE))
+    t.oncomplete = () => res(r ? r.result : undefined)
+    t.onerror = () => rej(t.error)
+  })
+}
+
 void (async () => {
   try {
-    const r = await fetch(`${import.meta.env.BASE_URL}eksempel.wav`)
-    if (!r.ok || !r.headers.get('content-type')?.startsWith('audio')) return
-    const buf = await decode(await r.arrayBuffer())
-    if (!slots.eksempel.buf) {
-      slots.eksempel.buf = buf
-      slots.eksempel.name = 'eksempel.wav'
+    const all = ((await tx('readonly', (s) => s.getAll())) ?? []) as Stored[]
+    all.sort((a, b) => b.created - a.created)
+    const out: Clip[] = []
+    for (const s of all.slice(0, MAX)) {
+      try {
+        out.push({ id: s.id, name: s.name, created: s.created, buf: await decode(s.data) })
+      } catch {}
     }
+    // Klipp lagt til mens vi lastet går foran
+    clips.value = [...clips.value, ...out].slice(0, MAX)
+    if (!selectedId.value && clips.value[0]) selectedId.value = clips.value[0].id
   } catch {}
 })()
 
-export async function startRecording(slot: SlotId) {
+async function addClip(name: string, data: ArrayBuffer, type: string) {
+  const buf = await decode(data)
+  const clip: Clip = { id: crypto.randomUUID(), name, created: Date.now(), buf }
+  const dropped = clips.value.slice(MAX - 1)
+  clips.value = [clip, ...clips.value].slice(0, MAX)
+  selectedId.value = clip.id
+  source.value = 'clip'
+  try {
+    await tx('readwrite', (s) => {
+      s.put({ id: clip.id, name, created: clip.created, type, data } satisfies Stored)
+      for (const c of dropped) s.delete(c.id)
+    })
+  } catch {}
+  return clip
+}
+
+const hhmm = () => new Date().toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })
+
+// --- Kilde ---
+export async function useMic() {
+  stopClip()
+  source.value = 'mic'
+  if (!micOn.value) await enableMic()
+}
+
+export function useClip(id?: string) {
+  if (id) selectedId.value = id
+  if (source.value !== 'clip') {
+    source.value = 'clip'
+    if (!recording.value) disableMic()
+  } else if (playing.value) playClip()
+}
+
+// --- Opptak / fil ---
+export async function startRecording() {
   stopClip()
   const stream = await getMicStream()
   const chunks: Blob[] = []
   rec = new MediaRecorder(stream)
   rec.ondataavailable = (e) => e.data.size && chunks.push(e.data)
   rec.onstop = async () => {
-    recordingSlot.value = null
+    recording.value = false
     const blob = new Blob(chunks, { type: rec?.mimeType })
-    slots[slot].buf = await decode(await blob.arrayBuffer())
-    slots[slot].name = 'Opptak'
+    // Lytter vi på klipp, skal ikke mikrofonen stå på etterpå
+    disableMic()
+    await addClip(`Opptak ${hhmm()}`, await blob.arrayBuffer(), blob.type)
   }
   rec.start()
-  recordingSlot.value = slot
+  recording.value = true
 }
 
 export function stopRecording() {
   if (rec && rec.state !== 'inactive') rec.stop()
 }
 
-export async function loadFile(slot: SlotId, file: File) {
+export async function loadFile(file: File) {
   stopClip()
-  slots[slot].buf = await decode(await file.arrayBuffer())
-  slots[slot].name = file.name
+  return addClip(file.name, await file.arrayBuffer(), file.type)
 }
 
-/** Spill klippet gjennom master, så tap-en (og alle analysene) ser det */
-export function playClip(slot: SlotId, from = 0) {
-  const buf = slots[slot].buf
+// --- Avspilling ---
+/** Spill valgt klipp gjennom master, så tap-en (og alle analysene) ser det */
+export function playClip(from = 0) {
+  const buf = selectedClip.value?.buf
   if (!buf) return
   stopClip()
   const c = getCtx()
@@ -87,10 +153,10 @@ export function playClip(slot: SlotId, from = 0) {
   s.onended = () => {
     if (src === s) stopClip()
   }
-  playingSlot.value = slot
+  playing.value = true
   const tick = () => {
     clipPos.value = offset + (c.currentTime - startedAt)
-    if (playingSlot.value) raf = requestAnimationFrame(tick)
+    if (playing.value) raf = requestAnimationFrame(tick)
   }
   tick()
 }
@@ -101,6 +167,8 @@ export function stopClip() {
   } catch {}
   src?.disconnect()
   src = null
-  playingSlot.value = null
+  playing.value = false
   cancelAnimationFrame(raf)
 }
+
+export const togglePlay = () => (playing.value ? stopClip() : playClip())

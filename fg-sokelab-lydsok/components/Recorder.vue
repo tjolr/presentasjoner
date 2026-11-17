@@ -1,25 +1,22 @@
 <script setup lang="ts">
-// Ta opp (eller last inn) et lydklipp og vis hele bølgen. Klippet gjenbrukes i analysene senere.
+// Ta opp (eller last inn) et lydklipp og vis hele bølgen. De 3 siste huskes og kan spilles i analysene (velgeren oppe til høyre).
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { getTap, isShown } from '../lib/audio'
 import {
-  type SlotId,
   clipPos,
   loadFile,
   playClip,
-  playingSlot,
-  recordingSlot,
-  slots,
+  playing,
+  recording,
+  selectedClip,
   startRecording,
-  stopClip,
   stopRecording,
+  togglePlay,
 } from '../lib/recording'
 
-const props = withDefaults(defineProps<{ target?: SlotId }>(), { target: 'intro' })
-const clip = computed(() => slots[props.target].buf)
-const clipName = computed(() => slots[props.target].name)
-const recordingClip = computed(() => recordingSlot.value === props.target)
-const playing = computed(() => playingSlot.value === props.target)
+const clip = computed(() => selectedClip.value?.buf ?? null)
+const clipName = computed(() => selectedClip.value?.name ?? '')
+const recordingClip = recording
 
 const W = 860
 const H = 220
@@ -122,11 +119,10 @@ function draw() {
 async function toggleRec() {
   err.value = ''
   if (recordingClip.value) return stopRecording()
-  if (recordingSlot.value) return
   try {
     live = []
     recStart = performance.now()
-    await startRecording(props.target)
+    await startRecording()
   } catch (e) {
     err.value = 'Fikk ikke tilgang til mikrofonen'
   }
@@ -136,7 +132,7 @@ async function onFile(f?: File | null) {
   if (!f) return
   err.value = ''
   try {
-    await loadFile(props.target, f)
+    await loadFile(f)
   } catch {
     err.value = 'Klarte ikke å lese lydfila'
   }
@@ -150,7 +146,7 @@ function onDrop(e: DragEvent) {
 function seek(e: MouseEvent) {
   if (!clip.value || recordingClip.value) return
   const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
-  playClip(props.target, ((e.clientX - r.left) / r.width) * clip.value.duration)
+  playClip(((e.clientX - r.left) / r.width) * clip.value.duration)
 }
 
 onMounted(draw)
@@ -165,7 +161,7 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
       </button>
       <button class="pill" @click="file?.click()">Last inn fil</button>
       <input ref="file" type="file" accept="audio/*" hidden @change="onFile(($event.target as HTMLInputElement).files?.[0])" />
-      <button v-if="clip && !recordingClip" class="pill g" @click="playing ? stopClip() : playClip(target)">
+      <button v-if="clip && !recordingClip" class="pill g" @click="togglePlay">
         {{ playing ? '■ Stopp' : '▶ Spill av' }}
       </button>
       <span class="sub name">{{ err || clipName }}</span>

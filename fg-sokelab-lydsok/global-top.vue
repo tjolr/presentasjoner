@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted } from 'vue'
-import { disableMic, enableMic, micDeviceId, micInputs, micOn, setMicDevice } from './lib/audio'
+import { disableMic, micDeviceId, micInputs, micOn, setMicDevice } from './lib/audio'
 import { enableMidi, midiDevice, midiOn, midiThru } from './lib/midi'
+import { clips, playing, selectedId, source, togglePlay, useClip, useMic } from './lib/recording'
 
-async function toggleMic() {
-  if (micOn.value) disableMic()
-  else await enableMic()
+async function clickMic() {
+  if (source.value === 'mic' && micOn.value) disableMic()
+  else await useMic()
 }
+const dur = (s: number) => s.toFixed(0) + ' s'
 
 // Slipp fokus etter klikk så piltaster/mellomrom fortsatt blar i slides
 const release = (e: Event) => {
@@ -26,11 +28,25 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="gt">
-    <button :class="{ sel: micOn }" title="Mikrofon / lydkort (gitar)" @click="toggleMic">
+    <button :class="{ sel: source === 'mic' && micOn }" title="Live fra mikrofon / lydkort (gitar)" @click="clickMic">
       <span class="dot" />Mikrofon
     </button>
+    <button
+      :class="{ sel: source === 'clip' }"
+      :disabled="!clips.length"
+      :title="clips.length ? 'Spill av et lydklipp gjennom analysene' : 'Ta opp et klipp først'"
+      @click="useClip()"
+    >
+      Lydklipp
+    </button>
+    <template v-if="source === 'clip' && clips.length">
+      <select :value="selectedId" title="Lydklipp" @change="useClip(($event.target as HTMLSelectElement).value)">
+        <option v-for="c in clips" :key="c.id" :value="c.id">{{ c.name }} · {{ dur(c.buf.duration) }}</option>
+      </select>
+      <button class="play" :class="{ on: playing }" @click="togglePlay">{{ playing ? '■' : '▶' }}</button>
+    </template>
     <select
-      v-if="micOn && micInputs.length > 1"
+      v-if="source === 'mic' && micOn && micInputs.length > 1"
       :value="micDeviceId"
       title="Lydinngang"
       @change="setMicDevice(($event.target as HTMLSelectElement).value)"
@@ -81,6 +97,18 @@ select {
   max-width: 180px;
   padding: 0 6px;
   cursor: pointer;
+}
+button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+button.play {
+  min-width: 30px;
+  justify-content: center;
+  color: var(--sp-text);
+}
+button.play.on {
+  color: var(--sp-green-bright);
 }
 button.sel {
   background: var(--sp-green);

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // Live lydbølge og/eller rullende spektrogram av alt som spilles + mikrofonen.
-import ClipButton from './ClipButton.vue'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { GUITAR, getCtx, getTap, isShown, mtof, playTone, pluck, strum } from '../lib/audio'
 import { songById, timed } from '../lib/songs'
@@ -164,7 +163,6 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
   <div ref="root" class="scope">
     <div class="src">
       <button v-for="s in sources" :key="s.label" class="pill" @click="s.play">{{ s.label }}</button>
-      <ClipButton />
     </div>
     <div v-if="view !== 'spec'" class="box" :class="{ bleed }">
       <span v-if="!bleed" class="tag">Lydbølge · amplitude over tid</span>
