@@ -95,7 +95,7 @@ function playHum() {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 330px;
+  width: 360px;
   transition: opacity 0.4s;
 }
 .head {

@@ -151,14 +151,14 @@ clicks: 8
 </div>
 
 ---
-clicks: 2
+clicks: 3
 ---
 
 # Steg 1: lyd → <span class="accent">tall</span>
 
 <div class="grid grid-cols-[500px_1fr] gap-8 mt-4 items-start">
 
-<Keys :step="$clicks + 1" />
+<Keys :step="Math.min($clicks, 2) + 1" />
 
 <div class="small">
 
@@ -180,7 +180,7 @@ clicks: 2
 </div>
 </div>
 
-<OsNote term="ingest pipeline">Som <code>text_embedding</code> gjør tekst til tall før indeksering. Her gjør pitch-sporingen lyd til tall, likt for alt vi indekserer og for queryen.</OsNote>
+<OsNote v-if="$clicks >= 3" term="ingest pipeline">Som <code>text_embedding</code> gjør tekst til tall før indeksering. Her gjør pitch-sporingen lyd til tall, likt for alt vi indekserer og for queryen.</OsNote>
 
 <!--
 Tonen vi fant på «Hvilken tone spilles?» blir et tall, hvert 30. ms.
@@ -206,38 +206,38 @@ Sangkorpuset vårt er også i praksis MIDI: lister med tall.
 -->
 
 ---
-clicks: 1
+clicks: 2
 ---
 
 # Steg 2: tonearten spiller ingen <span class="accent">rolle</span>
 
-<Contours :step="$clicks" class="mt-2" />
+<Contours :step="Math.min($clicks, 1)" class="mt-2" />
 
 <div class="text-center mt-4 h-14">
 <div v-if="$clicks === 0" class="sub">Samme melodi i en annen toneart: hver tone er 5 halvtoner opp. Sprangene mellom tonene er like.</div>
 <div v-else>Trekk fra gjennomsnittet: <strong class="accent">bare formen er igjen</strong>. Som en <span class="os">analyzer</span> som gjør «Applikasjonene» og «applikasjon» til samme token.</div>
 </div>
 
-<OsNote term="analyzer">Kjøres likt ved indeksering og søk, ellers matcher ingenting. Det samme gjelder normaliseringen av melodien.</OsNote>
+<OsNote v-if="$clicks >= 2" term="analyzer">Kjøres likt ved indeksering og søk, ellers matcher ingenting. Det samme gjelder normaliseringen av melodien.</OsNote>
 
 <!--
 Koble tilbake til akkord-sliden: der regnet vi akkorden relativt til grunntonen. Her trekker vi fra snittet. Samme idé: relativt, ikke absolutt.
 -->
 
 ---
-clicks: 1
+clicks: 2
 ---
 
 # Steg 3: del opp i overlappende <span class="accent">vinduer</span>
 
-<Contours :step="2 + $clicks" class="mt-2" />
+<Contours :step="2 + Math.min($clicks, 1)" class="mt-2" />
 
 <div class="text-center mt-2">
 <div v-if="$clicks === 0" class="sub">5 s vinduer med 2 s hopp. Starter du å spille midt i sangen, treffer du fortsatt et vindu.</div>
-<div v-else class="sub">Hvert vindu er en <span class="os">passage</span> med referanse til sangen sin. Vi søker i vinduer, men returnerer sanger. Som å dele et stort bilde i ruter: treffet er en rute, men du får hele bildet.</div>
+<div v-else-if="$clicks === 1" class="sub">Hvert vindu er en <span class="os">passage</span> med referanse til sangen sin. Vi søker i vinduer, men returnerer sanger. Som å dele et stort bilde i ruter: treffet er en rute, men du får hele bildet.</div>
 </div>
 
-<OsNote v-if="$clicks === 0" term="chunking">Som å dele lange dokumenter i overlappende biter før embedding. Overlappen gjør at en frase ikke blir kuttet i to.</OsNote>
+<OsNote v-if="$clicks >= 2" term="chunking">Som å dele lange dokumenter i overlappende biter før embedding. Overlappen gjør at en frase ikke blir kuttet i to.</OsNote>
 
 <!--
 Bygg på Joachims bildesøk: for å finne en liten ting i et stort bilde deler man det i overlappende ruter, én embedding per rute. Her er det samme langs tid: sangen er forelder-dokumentet, vinduene er rutene (i OpenSearch: passages).
@@ -463,19 +463,19 @@ librosa.sequence.dtw(..., subseq=True) gjør dette i én linje.
 -->
 
 ---
-clicks: 1
+clicks: 2
 ---
 
 # Steg 5: DTW stokker om <span class="accent">rekkefølgen</span>
 
-<RerankView :step="$clicks" class="mt-4" />
+<RerankView :step="Math.min($clicks, 1)" class="mt-4" />
 
 <div class="text-center mt-6 h-12">
 <div v-if="$clicks === 0" class="sub">kNN er rask, men grov: et vindu i feil sang ligner nok til å havne øverst.</div>
 <div v-else class="sub">DTW sjekker hver kandidat nøye. Riktig sang vinner, og vi får vite <strong>hvor i sangen</strong>.<br/>Billig søk på <strong>alt</strong>, dyr sammenligning på <strong>litt</strong>.</div>
 </div>
 
-<OsNote term="rescore">Kjører en dyrere query på topp-N (<code>window_size</code>). Samme mønster, men DTW finnes ikke der, så vi gjør det i appen.</OsNote>
+<OsNote v-if="$clicks >= 2" term="rescore">Kjører en dyrere query på topp-N (<code>window_size</code>). Samme mønster, men DTW finnes ikke der, så vi gjør det i appen.</OsNote>
 
 <!--
 Ekte tall fra demo-indeksen: Blinke fra slag 4, spilt tre halvtoner opp.
