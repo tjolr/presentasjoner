@@ -25,6 +25,8 @@ let frame = 0
 const FMIN = 60
 const FMAX = 5000
 let raf = 0
+/** Har det kommet lyd ennå? Til da viser spektrogrammet et hint i stedet for å være svart. */
+const heard = ref(false)
 
 const sources = [
   { label: 'Sinus 440 Hz', play: () => playTone(69, getCtx().currentTime, 1.6, 0.35, 'sine') },
@@ -112,6 +114,7 @@ function draw() {
       const bin = Math.round((f / sr) * tap.fftSize)
       const v = Math.max(0, Math.min(1, (db[bin] + 95) / 70))
       col[y] = v
+      if (v > 0.35) heard.value = true
       // Svart → lavendel (--pad) → hvitt
       const a = Math.min(1, v * 1.35)
       const w = v ** 4
@@ -163,6 +166,7 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
     <div v-if="view !== 'wave'" class="box">
       <span class="tag">Spektrogram · frekvens over tid</span>
       <canvas ref="spec" :width="W" :height="view === 'spec' ? height : height - 60" />
+      <div v-if="!heard" class="hint">▶ Trykk på en lyd over, eller slå på mikrofonen</div>
       <div class="axis">
         <span
           v-for="f in ticks"
@@ -215,6 +219,16 @@ canvas {
   letter-spacing: 0.25em;
   color: var(--text-low);
   z-index: 1;
+}
+.hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-low);
+  font-size: 14px;
+  pointer-events: none;
 }
 .axis span {
   position: absolute;

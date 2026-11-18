@@ -1,7 +1,7 @@
 // Enkel YIN-pitchdeteksjon (de Cheveigné & Kawahara 2002) på det som går gjennom tap-en.
 import { ftom, getCtx, getTap } from './audio'
 
-export function yin(buf: Float32Array, sr: number, fmin = 70, fmax = 1100, thr = 0.15, gate = 0.008): number | null {
+export function yin(buf: Float32Array, sr: number, fmin = 70, fmax = 1100, thr = 0.15, gate = 0.003): number | null {
   let rms = 0
   for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i]
   if (Math.sqrt(rms / buf.length) < gate) return null
@@ -43,16 +43,19 @@ export function yin(buf: Float32Array, sr: number, fmin = 70, fmax = 1100, thr =
   return sr / (tau + shift)
 }
 
-/** Les pitch hvert `hopMs` ms. cb får MIDI-tall (desimal) eller null (stillhet/støy). */
-export function startTracker(cb: (midi: number | null) => void, active: () => boolean = () => true, hopMs = 30) {
+/** Les pitch hvert `hopMs` ms. cb får MIDI-tall (desimal) eller null (stillhet/støy), pluss lydnivået (RMS). */
+export function startTracker(cb: (midi: number | null, rms: number) => void, active: () => boolean = () => true, hopMs = 30) {
   const tap = getTap()
   const sr = getCtx().sampleRate
   const buf = new Float32Array(tap.fftSize)
   const id = setInterval(() => {
     if (!active()) return
     tap.getFloatTimeDomainData(buf)
-    const f = yin(buf.subarray(buf.length - 2048), sr)
-    cb(f ? ftom(f) : null)
+    const x = buf.subarray(buf.length - 2048)
+    let e = 0
+    for (let i = 0; i < x.length; i++) e += x[i] * x[i]
+    const f = yin(x, sr)
+    cb(f ? ftom(f) : null, Math.sqrt(e / x.length))
   }, hopMs)
   return () => clearInterval(id)
 }

@@ -8,7 +8,7 @@ import { HOP, type Ranked, fakeHum, fill, knn, queryVector, rerank } from '../li
 import { songById, timed } from '../lib/songs'
 import { playClip, selectedClip, source, stopClip } from '../lib/recording'
 
-const REC_SEC = 5
+const REC_SEC = 10
 /** Lydklipp: maks så mange sekunder melodi, regnet fra første tone */
 const CLIP_SEC = 10
 const root = ref<HTMLElement>()
@@ -18,6 +18,10 @@ const hits = ref<ReturnType<typeof knn>>([])
 const ranked = ref<Ranked[]>([])
 const stage = ref(0)
 const ms = ref({ knn: 0, dtw: 0 })
+/** Lydnivå mens vi lytter, og hva som gikk galt hvis vi ikke hørte noen tone */
+const level = ref(0)
+let peak = 0
+const msg = ref('')
 
 const examples = [
   { label: 'Fader Jakob (midten, +5, surt)', id: 'fader', from: 6, beats: 8, tr: 5, st: 1.2 },
@@ -70,8 +74,13 @@ function searchClip() {
 
 function record() {
   getCtx()
+  // Trykk under opptak: stopp nå og søk med det vi har
+  if (recording.value > 0) return finish()
   if (source.value === 'clip' && selectedClip.value) return searchClip()
+  clearInterval(timer)
   buf = []
+  peak = 0
+  msg.value = ''
   reset()
   query.value = new Float32Array()
   recording.value = REC_SEC
@@ -79,13 +88,23 @@ function record() {
   timer = setInterval(() => {
     const left = REC_SEC - (performance.now() - t0) / 1000
     recording.value = Math.max(0, Math.ceil(left))
-    if (left <= 0) {
-      clearInterval(timer)
-      recording.value = 0
-      query.value = Float32Array.from(buf)
-      search()
-    }
+    if (left <= 0) finish()
   }, 100)
+}
+
+function finish() {
+  clearInterval(timer)
+  recording.value = 0
+  query.value = Float32Array.from(buf)
+  level.value = 0
+  if (fill(query.value).length < 10) {
+    msg.value =
+      peak < 0.003
+        ? 'Hørte nesten ingenting. Sjekk at riktig inngang er valgt oppe til høyre, og spill nærmere mikrofonen.'
+        : 'Hørte lyd, men ingen tydelig tone. Spill melodien én tone om gangen, ikke akkorder.'
+    return
+  }
+  search()
 }
 
 function reset() {
@@ -131,7 +150,9 @@ const title = (id: string) => songById(id).title
 
 onMounted(() => {
   stopTrack = startTracker(
-    (m) => {
+    (m, rms) => {
+      level.value = rms
+      peak = Math.max(peak, rms)
       const v = midiNote ?? m
       buf.push(v ?? NaN)
       query.value = Float32Array.from(buf)
@@ -155,7 +176,7 @@ onBeforeUnmount(() => {
   <div ref="root" class="sd">
     <div class="btns">
       <button class="pill rec" :class="{ on: recording }" @click="record">
-        {{ recording ? `● Tar opp … ${recording}` : source === 'clip' && selectedClip ? `▶ Søk med lydklipp (maks ${CLIP_SEC} s)` : '● Lytt 5 s (mikrofon / MIDI)' }}
+        {{ recording ? `■ Stopp og søk (${recording})` : source === 'clip' && selectedClip ? `▶ Søk med lydklipp (maks ${CLIP_SEC} s)` : `● Lytt ${REC_SEC} s (mikrofon / MIDI)` }}
       </button>
       <span class="sub">eller</span>
       <button v-for="e in examples" :key="e.label" class="pill b" @click="useExample(e)">▶ {{ e.label }}</button>
@@ -164,7 +185,19 @@ onBeforeUnmount(() => {
 
     <svg :width="W" :height="H" class="q">
       <path :d="qPath" />
-      <text v-if="!qPath" :x="W / 2" :y="H / 2 + 4" text-anchor="middle">query-kontur vises her</text>
+      <text v-if="!qPath" :x="W / 2" :y="H / 2 + 4" text-anchor="middle" :class="{ warn: msg }">
+        {{ msg || (recording ? 'Lytter … spill én tone om gangen' : 'query-kontur vises her') }}
+      </text>
+      <!-- Nivåmåler mens vi lytter: grått under porten, grønt når det er nok lyd til å finne tonen -->
+      <rect
+        v-if="recording"
+        x="0"
+        :y="H - 4"
+        :width="Math.min(1, level / 0.05) * W"
+        height="4"
+        class="lvl"
+        :class="{ ok: level >= 0.003 }"
+      />
     </svg>
 
     <div class="cols">
@@ -232,6 +265,15 @@ onBeforeUnmount(() => {
 .q text {
   fill: var(--sp-sub);
   font-size: 13px;
+}
+.q text.warn {
+  fill: var(--sp-orange);
+}
+.lvl {
+  fill: rgba(255, 255, 255, 0.3);
+}
+.lvl.ok {
+  fill: var(--sp-green-bright);
 }
 .cols {
   display: grid;

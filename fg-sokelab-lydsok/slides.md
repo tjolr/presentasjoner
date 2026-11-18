@@ -463,29 +463,25 @@ librosa.sequence.dtw(..., subseq=True) gjør dette i én linje.
 -->
 
 ---
+clicks: 1
+---
 
-# Rerank i <span class="accent">appen</span>, ikke i søkemotoren
+# Steg 5: DTW stokker om <span class="accent">rekkefølgen</span>
 
-<div class="flow mt-16">
-<div class="box2"><div class="t">Query</div><div class="s">64 tall</div></div>
-<div class="arrow">→</div>
-<div class="box2 os"><div class="t">OpenSearch</div><div class="s">kNN · k: 20<br/>rask og grov</div></div>
-<div class="arrow">→</div>
-<div class="box2 app"><div class="t">Appen</div><div class="s">DTW på 20 treff<br/>treg og presis</div></div>
-<div class="arrow">→</div>
-<div class="box2"><div class="t">Topp 3</div><div class="s">+ hvor i sangen</div></div>
+<RerankView :step="$clicks" class="mt-4" />
+
+<div class="text-center mt-6 h-12">
+<div v-if="$clicks === 0" class="sub">kNN er rask, men grov: et vindu i feil sang ligner nok til å havne øverst.</div>
+<div v-else class="sub">DTW sjekker hver kandidat nøye. Riktig sang vinner, og vi får vite <strong>hvor i sangen</strong>.<br/>Billig søk på <strong>alt</strong>, dyr sammenligning på <strong>litt</strong>.</div>
 </div>
-
-<v-clicks>
-
-<div class="text-center mt-12 text-lg">Billig søk på <strong>alt</strong>, dyr sammenligning på <strong>litt</strong>.</div>
-<div class="text-center sub mt-2">Jo mer avansert søket blir, desto mer flytter vi ut av søkemotoren og inn i appen.</div>
-
-</v-clicks>
 
 <OsNote term="rescore">Kjører en dyrere query på topp-N (<code>window_size</code>). Samme mønster, men DTW finnes ikke der, så vi gjør det i appen.</OsNote>
 
 <!--
+Ekte tall fra demo-indeksen: Blinke fra slag 4, spilt tre halvtoner opp.
+kNN henter 20 vinduer; de blir til 2 sanger. Wonderful World har et vindu som ligner punkt for punkt, så den kommer først.
+DTW på de to kandidatene: Blinke 0,20, Wonderful 0,51. Rekkefølgen snus.
+Derfor heter det rerank: søkemotoren gir kandidater, appen bestemmer rekkefølgen.
 Joakims poeng fra del 1: søkemotoren gjør grunnleggende indeksering og kNN, resten bygger vi utenpå.
 -->
 
@@ -499,7 +495,7 @@ Joakims poeng fra del 1: søkemotoren gjør grunnleggende indeksering og kNN, re
 Korpus: 4 sanger (Fader Jakob, Blinke lille stjerne, What a Wonderful World, Let It Be).
 1. Trykk «Fader Jakob» og «Søk». kNN gir What a Wonderful World på #1, DTW flytter Fader Jakob opp.
 2. Lydklipp: velg «Lydklipp» oppe til høyre og trykk «Søk med lydklipp». Hele klippet analyseres med en gang (maks 10 s fra første tone).
-   Live: velg «Mikrofon», trykk «Lytt 5 s» og spill melodien på gitaren. Én tone om gangen, demp strengen før neste tone.
+   Live: velg «Mikrofon», trykk «Lytt 10 s» og spill melodien på gitaren. Én tone om gangen, demp strengen før neste tone.
 3. Backup: spill melodien på MIDI-keyboardet mens den tar opp. Da er tallene eksakte.
 Klikk et treff for å høre utdraget den mener du spilte.
 -->
@@ -612,6 +608,28 @@ Demucs: pip install demucs; demucs sang.mp3. Ca. et halvt minutt per låt på en
 <!--
 Wang 2003. Tåler støy, fordi bare de sterkeste punktene teller.
 Men spiller du den selv, matcher ingenting: frekvensene er helt andre enn i originalopptaket.
+-->
+
+---
+clicks: 3
+---
+
+# Shazam: fra stjerner til <span class="accent">treff</span>
+
+<ShazamHash :step="$clicks" class="mt-6" />
+
+<div class="text-center sub mt-4 h-8">
+<span v-if="$clicks === 0">Lyden blir et kart av prikker. Det er alt Shazam tar vare på.</span>
+<span v-else-if="$clicks === 1">Ett punkt er <strong>anker</strong>, og pares med naboer foran seg. Hvert par blir en kort kode: en hash.</span>
+<span v-else-if="$clicks === 2">Hashene er <strong>ord</strong> i en invertert indeks: <span class="os">term</span>-søk på et <span class="os">keyword</span>-felt.</span>
+<span v-else>Riktig sang = mange treff med <strong>samme tidsforskyvning</strong>. Da vet vi også hvor i sangen klippet er fra.</span>
+</div>
+
+<!--
+Illustrasjon, ikke ekte tall.
+Hvorfor par og ikke enkeltpunkter? Én tone alene finnes i alle sanger. To toner + avstanden mellom dem er mye mer unik.
+Hvorfor tidsforskyvning? Hashene kan treffe tilfeldig i mange sanger, men bare i riktig sang ligger alle treffene på linje i tid.
+Sammenlign med melodisøket: Shazam matcher eksakt opptak (samme frekvenser), melodisøket matcher formen (tonearten og tempoet kan være annerledes).
 -->
 
 ---
